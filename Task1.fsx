@@ -43,8 +43,8 @@ let rec compute n =
         try
         // We parse the input string
         let e = parse (Console.ReadLine())
-        // and print the result of evaluating it
-        printfn "Result: %f" (eval(e))
+        // and print the result of evaluating it        
+        
         compute n
         with err -> compute (n-1)
 

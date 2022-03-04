@@ -49,15 +49,15 @@ start: expression0 EOF             { $1 }
 // written in the yacc format:
 
 gc:
-  | bexpr ARROW command { BooleanGuard($1,$3) }
-  | gc DOUBLEBRACKETS gc { GCommands($1,$3) }
+  | bexpr ARROW command   { BooleanGuard($1,$3) }
+  | gc DOUBLEBRACKETS gc  { GCommands($1,$3) }
 
 command:
-	| VARIABLE ASSIGN a { AssignExpr($1,$3) }
-  | ARRAY a ASSIGN a 
-  | command SEMICOLON command { Commands($1,$3) }
-  | IFSTART gc IFEND { IfStatement($2) }
-  | DOSTART gc DOEND { DoStatement($2) }
+	| VARIABLE ASSIGN a           { AssignExpr($1,$3) }
+  // How do?? :( | ARRAY a ASSIGN a 
+  | command SEMICOLON command   { Commands($1,$3) }
+  | IFSTART gc IFEND            { IfStatement($2) }
+  | DOSTART gc DOEND            { DoStatement($2) }
 
 bexpr:
   | TRUE              { True }
@@ -69,6 +69,11 @@ bexpr:
   | NEG bexpr         { Neg($2) }
   | a EQUAL a         { Equal($1,$3) }
   | a NEQUAL a        { NEqual($1,$3) }
+  | a GT a            { Greater($1,$3) }
+  | a GEQ a           { GreaterEqual($1,$3) }
+  | a LT a            { Less($1,$3) }
+  | a LEQ a           { LessEqual($1,$3) }
+  | LPAR a RPAR       { ParExpr($2) }
 
 a:
   | a PLUS a1     { PlusExpr($1,$3) }

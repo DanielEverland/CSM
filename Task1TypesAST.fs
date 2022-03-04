@@ -27,8 +27,8 @@ type aexpr =
   | ParExpr of (aexpr)
 
 type bexpr =
-  | True of bool
-  | False of bool
+  | True
+  | False
   | And of (bexpr * bexpr)
   | Or of (bexpr * bexpr)
   | SAnd of (bexpr * bexpr)
@@ -36,8 +36,8 @@ type bexpr =
   | Neg of (bexpr)
   | Equal of (aexpr * aexpr)
   | NEqual of (aexpr * aexpr)
-  | Larger of (aexpr * aexpr)
-  | LargerEqual of (aexpr * aexpr)
-  | Smaller of (aexpr * aexpr)
-  | SmallerEqual of (aexpr * aexpr)
+  | Greater of (aexpr * aexpr)
+  | GreaterEqual of (aexpr * aexpr)
+  | Less of (aexpr * aexpr)
+  | LessEqual of (aexpr * aexpr)
   | ParExpr of (bexpr)
