@@ -25,9 +25,31 @@ rule tokenize = parse
 | whitespace    { tokenize lexbuf }
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 // deal with tokens that need to be built
+| "if"          { IFSTART }
+| "fi"          { IFEND }
+| "do"          { DOSTART }
+| "od"          { DOEND }
+| var           { VARIABLE }
 | num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| "true"        { TRUE }
+| "false"       { FALSE }
+| "[]"          { DOUBLEBRACKETS }
+| "->"          { ARROW }
+| ":="          { ASSIGN }
+| '&'           { AND }
+| '&&'          { SAND }
+| '|'           { OR }
+| '||'          { SOR }
+| '!'           { NEG }
+| '='           { EQUAL }
+| "!="          { NEQUAL }
+| '>'           { LT }
+| ">="          { LEQ }
+| '<'           { ST }
+| "<="          { SEQ }
 | '*'           { TIMES }
 | '/'           { DIV }
+| ';'           { SEMICOLON }
 | '+'           { PLUS }
 | '-'           { MINUS }
 | '^'           { POW }

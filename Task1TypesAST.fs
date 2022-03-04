@@ -2,15 +2,42 @@
 // to store represent arithmetic expressions
 module Task1TypesAST
 
-type command =
-  | Assign of (String * expr)
+type gcommand =
+  | BooleanGuard of (bexpr * command)
+  | GCommands of (gcommand * gcommand)
+and command =
+  | AssignExpr of (String * aexpr)
+  | AssignArray of (String * aexpr * aexpr)
+  | Skip
+  | Commands of (command * command)
+  | IfStatement of (gcommand)
+  | DoStatement of (gcommand)
 
-type expr =
+type aexpr =
   | Num of float
-  | TimesExpr of (expr * expr)
-  | DivExpr of (expr * expr)
-  | PlusExpr of (expr * expr)
-  | MinusExpr of (expr * expr)
-  | PowExpr of (expr * expr)
-  | UPlusExpr of (expr)
-  | UMinusExpr of (expr)
+  | Var of string
+  | Array of (string * aexpr)
+  | TimesExpr of (aexpr * aexpr)
+  | DivExpr of (aexpr * aexpr)
+  | PlusExpr of (aexpr * aexpr)
+  | MinusExpr of (aexpr * aexpr)
+  | PowExpr of (aexpr * aexpr)
+  | UPlusExpr of (aexpr)
+  | UMinusExpr of (aexpr)
+  | ParExpr of (aexpr)
+
+type bexpr =
+  | True of bool
+  | False of bool
+  | And of (bexpr * bexpr)
+  | Or of (bexpr * bexpr)
+  | SAnd of (bexpr * bexpr)
+  | SOr of (bexpr * bexpr)
+  | Neg of (bexpr)
+  | Equal of (aexpr * aexpr)
+  | NEqual of (aexpr * aexpr)
+  | Larger of (aexpr * aexpr)
+  | LargerEqual of (aexpr * aexpr)
+  | Smaller of (aexpr * aexpr)
+  | SmallerEqual of (aexpr * aexpr)
+  | ParExpr of (bexpr)
