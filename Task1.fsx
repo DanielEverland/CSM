@@ -2,7 +2,7 @@
 
 // We need to import a couple of modules, including the generated lexer and parser
 // ################### EDIT DIS ELSE NO WORK ###################
-#r "C:/Users/[NAME]/.nuget/packages/fslexyacc.runtime/10.0.0/lib/net46/FsLexYacc.Runtime.dll"
+#r "bin/fslex/FsLexYacc.Runtime.dll"
 
 open FSharp.Text.Lexing
 open System
