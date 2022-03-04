@@ -15,7 +15,7 @@ open Task1TypesAST
 // b ::= true | false | b & b | b | b | b && b | b || b | !b
 //			  | a = a | a != a | a > a | a >= a | a < a | a <= a | (b)
 
-command: |
+command:
 	| VARIABLE ASSIGN a { ... }
 
 // Specify precedence and associativity of operators

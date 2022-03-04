@@ -1,7 +1,6 @@
 // This script implements our interactive calculator
 
 // We need to import a couple of modules, including the generated lexer and parser
-// ################### EDIT DIS ELSE NO WORK ###################
 #r "bin/fslex/FsLexYacc.Runtime.dll"
 
 open FSharp.Text.Lexing
@@ -18,13 +17,13 @@ open Task1Lexer
 let rec eval e =
   match e with
     | Num(x) -> x
-    | TimesExpr(x,y) -> eval(x) * eval (y)
-    | DivExpr(x,y) -> eval(x) / eval (y)
-    | PlusExpr(x,y) -> eval(x) + eval (y)
-    | MinusExpr(x,y) -> eval(x) - eval (y)
-    | PowExpr(x,y) -> eval(x) ** eval (y)
-    | UPlusExpr(x) -> eval(x)
-    | UMinusExpr(x) -> - eval(x)
+    | TimesExpr(x,y)    -> eval(x) * eval (y)
+    | DivExpr(x,y)      -> eval(x) / eval (y)
+    | PlusExpr(x,y)     -> eval(x) + eval (y)
+    | MinusExpr(x,y)    -> eval(x) - eval (y)
+    | PowExpr(x,y)      -> eval(x) ** eval (y)
+    | UPlusExpr(x)      -> eval(x)
+    | UMinusExpr(x)     -> - eval(x)
 
 // We
 let parse input =

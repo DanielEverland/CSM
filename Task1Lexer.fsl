@@ -10,6 +10,7 @@ System.Globalization.CultureInfo.CurrentCulture <- new System.Globalization.Cult
 }
 
 // We define macros for some regular expressions we will use later
+let var         = [a-zA-Z][a-zA-Z\d_]*
 let digit       = ['0'-'9']
 let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
 let whitespace  = [' ' '\t']

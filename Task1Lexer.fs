@@ -1,4 +1,4 @@
-# 2 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 2 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
  
 module Task1Lexer
 open FSharp.Text.Lexing
@@ -8,7 +8,7 @@ open Task1Parser
 // Set the language to English such that 4.0 is parsed as 4 and not 40.
 System.Globalization.CultureInfo.CurrentCulture <- new System.Globalization.CultureInfo("en-US")
 
-# 11 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 11 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
 let trans : uint16[] array = 
     [| 
     (* State 0 *)
@@ -61,60 +61,60 @@ let rec _fslex_dummy () = _fslex_dummy()
 and tokenize  lexbuf =
   match _fslex_tables.Interpret(0,lexbuf) with
   | 0 -> ( 
-# 24 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 24 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  tokenize lexbuf 
-# 66 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 66 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 1 -> ( 
-# 25 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 25 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; 
-# 71 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 71 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 2 -> ( 
-# 27 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 27 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) 
-# 76 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 76 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 3 -> ( 
-# 28 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 28 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  TIMES 
-# 81 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 81 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 4 -> ( 
-# 29 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 29 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  DIV 
-# 86 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 86 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 5 -> ( 
-# 30 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 30 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  PLUS 
-# 91 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 91 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 6 -> ( 
-# 31 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 31 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  MINUS 
-# 96 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 96 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 7 -> ( 
-# 32 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 32 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  POW 
-# 101 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 101 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 8 -> ( 
-# 33 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 33 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  LPAR 
-# 106 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 106 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 9 -> ( 
-# 34 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 34 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  RPAR 
-# 111 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 111 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | 10 -> ( 
-# 35 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Lexer.fsl"
+# 35 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Lexer.fsl"
                                  EOF 
-# 116 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 116 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"
           )
   | _ -> failwith "tokenize"
 
-# 3000000 "C:\Users\Meee\Documents\GitHub\CSM\Task1Lexer.fs"
+# 3000000 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Lexer.fs"

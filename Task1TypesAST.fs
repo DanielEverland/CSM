@@ -2,6 +2,9 @@
 // to store represent arithmetic expressions
 module Task1TypesAST
 
+type command =
+  | Assign of (String * expr)
+
 type expr =
   | Num of float
   | TimesExpr of (expr * expr)
