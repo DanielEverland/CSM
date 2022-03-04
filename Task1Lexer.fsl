@@ -32,5 +32,4 @@ rule tokenize = parse
 | '^'           { POW }
 | '('           { LPAR }
 | ')'           { RPAR }
-| ":="			{ ASSIGN }
 | eof           { EOF }

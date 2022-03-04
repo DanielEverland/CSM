@@ -31,7 +31,7 @@ let parse input =
     // translate string into a buffer of characters
     let lexbuf = LexBuffer<char>.FromString input
     // translate the buffer into a stream of tokens and parse them
-    let res = CalculatorParser.start CalculatorLexer.tokenize lexbuf
+    let res = Task1Parser.start Task1Lexer.tokenize lexbuf
     // return the result of parsing (i.e. value of type "expr")
     res
 

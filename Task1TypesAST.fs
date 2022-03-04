@@ -2,16 +2,7 @@
 // to store represent arithmetic expressions
 module Task1TypesAST
 
-type command =
-    | assign of (String * aexpr)
-
-type guardedCommands =
-    | ...
-
-type bexpr =
-    | ...
-
-type aexpr =
+type expr =
   | Num of float
   | TimesExpr of (expr * expr)
   | DivExpr of (expr * expr)
