@@ -2,17 +2,6 @@
 // to store represent arithmetic expressions
 module Task1TypesAST
 
-type gcommand =
-  | BooleanGuard of (bexpr * command)
-  | GCommands of (gcommand * gcommand)
-and command =
-  | AssignExpr of (String * aexpr)
-  | AssignArray of (String * aexpr * aexpr)
-  | Skip
-  | Commands of (command * command)
-  | IfStatement of (gcommand)
-  | DoStatement of (gcommand)
-
 type aexpr =
   | Num of float
   | Var of string
@@ -41,3 +30,15 @@ type bexpr =
   | Less of (aexpr * aexpr)
   | LessEqual of (aexpr * aexpr)
   | ParExpr of (bexpr)
+
+type gcommand =
+  | BooleanGuard of (bexpr * command)
+  | GCommands of (gcommand * gcommand)
+and command =
+  | AssignExpr of (string * aexpr)
+  | AssignArray of (string * aexpr * aexpr)
+  | Skip
+  | Commands of (command * command)
+  | IfStatement of (gcommand)
+  | DoStatement of (gcommand)
+
