@@ -27,10 +27,12 @@ open Task1TypesAST
 
 // We specify the return type of each of then non-terminal symbols
 %type <expr> start
-%type <expr> expression0
-%type <expr> expression1
-%type <expr> expression2
-%type <expr> expression3
+%type <aexpr> a
+%type <aexpr> a1
+%type <aexpr> a2
+%type <aexpr> a3
+%type <bexpr> bexpr
+//IDK wtf to put here
 
 // Grammar productions
 %%
