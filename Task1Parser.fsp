@@ -4,8 +4,15 @@ open Task1TypesAST
 %}
 
 // Declare the tokens (terminal symbols)
+%token ARROW DOUBLEBRACKETS
+
+%token VARIABLE ASSIGN SEMICOLON IFSTART IFEND DOSTART DOEND 
+
 %token <float> NUM
 %token TIMES DIV PLUS MINUS POW LPAR RPAR EOF
+
+%token AND OR SAND SOR NEG EQUAL NEQUAL GT GEQ LT LEQ TRUE FALSE
+
 // NOTE: the actual formats of these tokens are defined in the lexer file
 //       as regular expressions
 
@@ -17,22 +24,29 @@ open Task1TypesAST
 
 // Specify precedence and associativity of operators
 // Precedence is given by the order (from low to high)
-// %left PLUS MINUS
-// %left TIMES DIV
-// %right POW
+%right ASSIGN
+%left OR AND
+%left SOR SAND
+%left EQUAL NEQUAL
+%left LT LEQ
+%left GT GEQ
+%right NEQ
+%left PLUS MINUS
+%left TIMES DIV
+%right POW
+%right LPAR
+%left RPAR
 
 
 // We declare the initial non-terminal symbol
 %start start
 
 // We specify the return type of each of then non-terminal symbols
-%type <expr> start
-%type <aexpr> a
-%type <aexpr> a1
-%type <aexpr> a2
-%type <aexpr> a3
-%type <bexpr> bexpr
-//IDK wtf to put here
+%type <command> start
+%type <aexpr> aexpression
+%type <bexpr> bexpression
+%type <gcommand> gc
+%type <command> command
 
 // Grammar productions
 %%
@@ -40,7 +54,9 @@ open Task1TypesAST
 // The first production in "formal" notation is
 // start -> expression
 // here written:
-start: expression0 EOF             { $1 }
+start: command EOF             { $1 }
+//This is wrong but compiles
+//First expression can be either a GC or a C
 
 // Note that we need to insert an End-Of-File (EOF)
 // The code annotation { $1 } specifies that parsing with this production
@@ -51,51 +67,41 @@ start: expression0 EOF             { $1 }
 // written in the yacc format:
 
 gc:
-  | bexpr ARROW command   { BooleanGuard($1,$3) }
-  | gc DOUBLEBRACKETS gc  { GCommands($1,$3) }
+  | bexpression ARROW command		{ BooleanGuard($1,$3) }
+  | gc DOUBLEBRACKETS gc			{ GCommands($1,$3) }
 
 command:
-  | VARIABLE ASSIGN a           { AssignExpr($1,$3) }
-  // How do?? :( | ARRAY a ASSIGN a 
-  | command SEMICOLON command   { Commands($1,$3) }
-  | IFSTART gc IFEND            { IfStatement($2) }
-  | DOSTART gc DOEND            { DoStatement($2) }
+  //| VARIABLE ASSIGN aexpression		{ AssignExpr($1,$3) }
+  | command SEMICOLON command		{ Commands($1,$3) }
+  | IFSTART gc IFEND				{ IfStatement($2) }
+  | DOSTART gc DOEND				{ DoStatement($2) }
 
-bexpr:
-  | TRUE              { True }
-  | FALSE             { False }
-  | bexpr AND bexpr   { And($1,$3) }
-  | bexpr OR bexpr    { Or($1,$3) }
-  | bexpr SAND bexpr  { SAnd($1,$3) }
-  | bexpr SOR bexpr   { SOr($1,$3) }
-  | NEG bexpr         { Neg($2) }
-  | a EQUAL a         { Equal($1,$3) }
-  | a NEQUAL a        { NEqual($1,$3) }
-  | a GT a            { Greater($1,$3) }
-  | a GEQ a           { GreaterEqual($1,$3) }
-  | a LT a            { Less($1,$3) }
-  | a LEQ a           { LessEqual($1,$3) }
-  | LPAR a RPAR       { ParExpr($2) }
+bexpression:
+  | TRUE							{ True }
+  | FALSE							{ False }
+  | bexpression AND bexpression		{ And($1,$3) }
+  | bexpression OR bexpression		{ Or($1,$3) }
+  | bexpression SAND bexpression	{ SAnd($1,$3) }
+  | bexpression SOR bexpression		{ SOr($1,$3) }
+  | NEG bexpression					{ Neg($2) }
+  | aexpression EQUAL aexpression   { Equal($1,$3) }
+  | aexpression NEQUAL aexpression  { NEqual($1,$3) }
+  | aexpression GT aexpression      { Greater($1,$3) }
+  | aexpression GEQ aexpression     { GreaterEqual($1,$3) }
+  | aexpression LT aexpression      { Less($1,$3) }
+  | aexpression LEQ aexpression     { LessEqual($1,$3) }
+  | LPAR bexpression RPAR			{ ParBExpr($2) }
 
-a:
-  | a PLUS a1     { PlusExpr($1,$3) }
-  | a MINUS a1    { MinusExpr($1,$3) }
-  | a1					  { $1 }
-
-a1:
-  | a1 TIMES a2   { TimesExpr($1,$3) }
-  | a1 DIV a2     { DivExpr($1,$3) }
-  | a2					  { $1 }
-
-a2:
-  | a3 POW a2     { PowExpr($1,$3) }
-  | a3					  { $1 }
-
-a3:
-  | PLUS a3       { UPlusExpr($2) }
-  | MINUS a3      { UMinusExpr($2) }
-  | LPAR a0 RPAR  { $2 }
-  | NUM						{ Num($1) }
+aexpression:
+  | aexpression PLUS aexpression    { PlusExpr($1,$3) }
+  | aexpression MINUS aexpression   { MinusExpr($1,$3) }
+  | aexpression TIMES aexpression   { TimesExpr($1,$3) }
+  | aexpression DIV aexpression     { DivExpr($1,$3) }
+  | aexpression POW aexpression     { PowExpr($1,$3) }
+  | PLUS aexpression				{ UPlusExpr($2) }
+  | MINUS aexpression				{ UMinusExpr($2) }
+  | LPAR aexpression RPAR			{ ParAExpr($2) }
+  | NUM								{ Num($1) }
 
 // Again, the code annotation specifies the result of parsing
 // For example { TimesExpr($1,$3) } specifies that parsing with the production

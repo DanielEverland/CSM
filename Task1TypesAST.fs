@@ -5,7 +5,6 @@ module Task1TypesAST
 type aexpr =
   | Num of float
   | Var of string
-  | Array of (string * aexpr)
   | TimesExpr of (aexpr * aexpr)
   | DivExpr of (aexpr * aexpr)
   | PlusExpr of (aexpr * aexpr)
@@ -13,7 +12,7 @@ type aexpr =
   | PowExpr of (aexpr * aexpr)
   | UPlusExpr of (aexpr)
   | UMinusExpr of (aexpr)
-  | ParExpr of (aexpr)
+  | ParAExpr of (aexpr)
 
 type bexpr =
   | True
@@ -29,7 +28,7 @@ type bexpr =
   | GreaterEqual of (aexpr * aexpr)
   | Less of (aexpr * aexpr)
   | LessEqual of (aexpr * aexpr)
-  | ParExpr of (bexpr)
+  | ParBExpr of (bexpr)
 
 type gcommand =
   | BooleanGuard of (bexpr * command)

@@ -14,16 +14,43 @@ open Task1Lexer
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
-let rec eval e =
+let rec aeval e =
   match e with
     | Num(x) -> x
-    | TimesExpr(x,y)    -> eval(x) * eval (y)
-    | DivExpr(x,y)      -> eval(x) / eval (y)
-    | PlusExpr(x,y)     -> eval(x) + eval (y)
-    | MinusExpr(x,y)    -> eval(x) - eval (y)
-    | PowExpr(x,y)      -> eval(x) ** eval (y)
-    | UPlusExpr(x)      -> eval(x)
-    | UMinusExpr(x)     -> - eval(x)
+    | TimesExpr(x,y)        -> aeval(x) * aeval (y)
+    | DivExpr(x,y)          -> aeval(x) / aeval (y)
+    | PlusExpr(x,y)         -> aeval(x) + aeval (y)
+    | MinusExpr(x,y)        -> aeval(x) - aeval (y)
+    | PowExpr(x,y)          -> aeval(x) ** aeval (y)
+    | UPlusExpr(x)          -> aeval(x)
+    | UMinusExpr(x)         -> - aeval(x)
+    | ParAExpr(x)            -> ( aeval(x) )
+and beval e =
+  match e with
+    | True                  -> true
+    | False                 -> false
+    | SAnd(x, y)            -> beval(x) && beval(y)
+    | SOr(x, y)             -> beval(x) || beval(y)
+    | Neg(x)                -> not (beval(x))
+    | Equal(x, y)           -> aeval(x) = aeval(y)
+    | NEqual(x, y)          -> aeval(x) <> aeval(y)
+    | Greater(x, y)         -> aeval(x) > aeval(y)
+    | GreaterEqual(x, y)    -> aeval(x) >= aeval(y)
+    | Less(x, y)            -> aeval(x) < aeval(y)
+    | LessEqual(x, y)       -> aeval(x) <= aeval(y)
+    | ParBExpr(x)            -> ( beval(x) )
+and gceval e =
+  match e with
+    | BooleanGuard(x, y)    -> if beval(x) then ceval(y)
+    | GCommands(x, y)       -> gceval(x)
+                               gceval(y)
+and ceval e =
+  match e with
+    | Commands(x, y)        -> ceval(x)
+                               ceval(y)
+    |IfStatement(x)         -> gceval(x) //????
+    |DoStatement(x)         -> gceval(x) //????
+//Don't know how to evaluate variables, skip and arrays or assign expressions
 
 // We
 let parse input =
