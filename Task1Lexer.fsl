@@ -10,7 +10,7 @@ System.Globalization.CultureInfo.CurrentCulture <- new System.Globalization.Cult
 }
 
 // We define macros for some regular expressions we will use later
-let var         = [a-zA-Z][a-zA-Z\d_]*
+let var         = ['a'-'z' 'A'-'Z']['a'-'z' 'A'-'Z' '0'-'9']*
 let digit       = ['0'-'9']
 let num         = digit+ ( '.' digit+)?  ('E' ('+'|'-')? digit+ )?
 let whitespace  = [' ' '\t']
@@ -25,14 +25,14 @@ rule tokenize = parse
 | whitespace    { tokenize lexbuf }
 | newline       { lexbuf.EndPos <- lexbuf.EndPos.NextLine; tokenize lexbuf; }
 // deal with tokens that need to be built
+| "true"        { TRUE }
+| "false"       { FALSE }
 | "if"          { IFSTART }
 | "fi"          { IFEND }
 | "do"          { DOSTART }
 | "od"          { DOEND }
-| var           { VARIABLE }
+| var           { VAR(LexBuffer<_>.LexemeString lexbuf) }
 | num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
-| "true"        { TRUE }
-| "false"       { FALSE }
 | "[]"          { DOUBLEBRACKETS }
 | '['			{ LBRA }
 | ']'			{ RBRA }
