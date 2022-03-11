@@ -5,10 +5,12 @@ open Task1TypesAST
 
 // Declare the tokens (terminal symbols)
 %token <float> NUM
+%token <string> VAR
 %token ARROW DOUBLEBRACKETS
 %token VARIABLE ASSIGN SEMICOLON IFSTART IFEND DOSTART DOEND 
 %token TIMES DIV PLUS MINUS POW LPAR RPAR EOF
 %token AND OR SAND SOR NEG EQUAL NEQUAL GT GEQ LT LEQ TRUE FALSE
+%token SKIP LBRA RBRA
 
 // NOTE: the actual formats of these tokens are defined in the lexer file
 //       as regular expressions
@@ -41,8 +43,6 @@ open Task1TypesAST
 // start -> expression
 // here written:
 start: command EOF             { $1 }
-//This is wrong but compiles
-//First expression can be either a GC or a C
 
 // Note that we need to insert an End-Of-File (EOF)
 // The code annotation { $1 } specifies that parsing with this production
@@ -57,10 +57,12 @@ gc:
   | gc DOUBLEBRACKETS gc			{ GCommands($1,$3) }
 
 command:
-  //| VARIABLE ASSIGN aexpression		{ AssignExpr($1,$3) }
-  | command SEMICOLON command		{ Commands($1,$3) }
-  | IFSTART gc IFEND				{ IfStatement($2) }
-  | DOSTART gc DOEND				{ DoStatement($2) }
+  | VAR ASSIGN aexpression							{ AssignExpr($1,$3) }
+  | VAR LBRA aexpression RBRA ASSIGN aexpression	{ AssignArray($1, $3, $6) }
+  | SKIP											{ Skip }
+  | command SEMICOLON command						{ Commands($1,$3) }
+  | IFSTART gc IFEND								{ IfStatement($2) }
+  | DOSTART gc DOEND								{ DoStatement($2) }
 
 bexpression:
   | TRUE							{ True }
@@ -79,6 +81,9 @@ bexpression:
   | LPAR bexpression RPAR			{ ParBExpr($2) }
 
 aexpression:
+  | NUM								{ Num($1) }
+  | VAR								{ Var($1) }
+  | VAR LBRA aexpression RBRA		{ Array($1, $3) }
   | aexpression PLUS aexpression    { PlusExpr($1,$3) }
   | aexpression MINUS aexpression   { MinusExpr($1,$3) }
   | aexpression TIMES aexpression   { TimesExpr($1,$3) }
@@ -87,7 +92,6 @@ aexpression:
   | PLUS aexpression				{ UPlusExpr($2) }
   | MINUS aexpression				{ UMinusExpr($2) }
   | LPAR aexpression RPAR			{ ParAExpr($2) }
-  | NUM								{ Num($1) }
 
 // Again, the code annotation specifies the result of parsing
 // For example { TimesExpr($1,$3) } specifies that parsing with the production

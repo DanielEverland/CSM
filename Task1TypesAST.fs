@@ -5,6 +5,7 @@ module Task1TypesAST
 type aexpr =
   | Num of float
   | Var of string
+  | Array of (string * aexpr)
   | TimesExpr of (aexpr * aexpr)
   | DivExpr of (aexpr * aexpr)
   | PlusExpr of (aexpr * aexpr)

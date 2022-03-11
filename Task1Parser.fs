@@ -10,6 +10,9 @@ open Task1TypesAST
 # 10 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
 // This type is the type of tokens accepted by the parser
 type token = 
+  | SKIP
+  | LBRA
+  | RBRA
   | AND
   | OR
   | SAND
@@ -40,9 +43,13 @@ type token =
   | DOEND
   | ARROW
   | DOUBLEBRACKETS
+  | VAR of (string)
   | NUM of (float)
 // This type is used to give symbolic names to token indexes, useful for error messages
 type tokenId = 
+    | TOKEN_SKIP
+    | TOKEN_LBRA
+    | TOKEN_RBRA
     | TOKEN_AND
     | TOKEN_OR
     | TOKEN_SAND
@@ -73,6 +80,7 @@ type tokenId =
     | TOKEN_DOEND
     | TOKEN_ARROW
     | TOKEN_DOUBLEBRACKETS
+    | TOKEN_VAR
     | TOKEN_NUM
     | TOKEN_end_of_input
     | TOKEN_error
@@ -88,74 +96,82 @@ type nonTerminalId =
 // This function maps tokens to integer indexes
 let tagOfToken (t:token) = 
   match t with
-  | AND  -> 0 
-  | OR  -> 1 
-  | SAND  -> 2 
-  | SOR  -> 3 
-  | NEG  -> 4 
-  | EQUAL  -> 5 
-  | NEQUAL  -> 6 
-  | GT  -> 7 
-  | GEQ  -> 8 
-  | LT  -> 9 
-  | LEQ  -> 10 
-  | TRUE  -> 11 
-  | FALSE  -> 12 
-  | TIMES  -> 13 
-  | DIV  -> 14 
-  | PLUS  -> 15 
-  | MINUS  -> 16 
-  | POW  -> 17 
-  | LPAR  -> 18 
-  | RPAR  -> 19 
-  | EOF  -> 20 
-  | VARIABLE  -> 21 
-  | ASSIGN  -> 22 
-  | SEMICOLON  -> 23 
-  | IFSTART  -> 24 
-  | IFEND  -> 25 
-  | DOSTART  -> 26 
-  | DOEND  -> 27 
-  | ARROW  -> 28 
-  | DOUBLEBRACKETS  -> 29 
-  | NUM _ -> 30 
+  | SKIP  -> 0 
+  | LBRA  -> 1 
+  | RBRA  -> 2 
+  | AND  -> 3 
+  | OR  -> 4 
+  | SAND  -> 5 
+  | SOR  -> 6 
+  | NEG  -> 7 
+  | EQUAL  -> 8 
+  | NEQUAL  -> 9 
+  | GT  -> 10 
+  | GEQ  -> 11 
+  | LT  -> 12 
+  | LEQ  -> 13 
+  | TRUE  -> 14 
+  | FALSE  -> 15 
+  | TIMES  -> 16 
+  | DIV  -> 17 
+  | PLUS  -> 18 
+  | MINUS  -> 19 
+  | POW  -> 20 
+  | LPAR  -> 21 
+  | RPAR  -> 22 
+  | EOF  -> 23 
+  | VARIABLE  -> 24 
+  | ASSIGN  -> 25 
+  | SEMICOLON  -> 26 
+  | IFSTART  -> 27 
+  | IFEND  -> 28 
+  | DOSTART  -> 29 
+  | DOEND  -> 30 
+  | ARROW  -> 31 
+  | DOUBLEBRACKETS  -> 32 
+  | VAR _ -> 33 
+  | NUM _ -> 34 
 
 // This function maps integer indexes to symbolic token ids
 let tokenTagToTokenId (tokenIdx:int) = 
   match tokenIdx with
-  | 0 -> TOKEN_AND 
-  | 1 -> TOKEN_OR 
-  | 2 -> TOKEN_SAND 
-  | 3 -> TOKEN_SOR 
-  | 4 -> TOKEN_NEG 
-  | 5 -> TOKEN_EQUAL 
-  | 6 -> TOKEN_NEQUAL 
-  | 7 -> TOKEN_GT 
-  | 8 -> TOKEN_GEQ 
-  | 9 -> TOKEN_LT 
-  | 10 -> TOKEN_LEQ 
-  | 11 -> TOKEN_TRUE 
-  | 12 -> TOKEN_FALSE 
-  | 13 -> TOKEN_TIMES 
-  | 14 -> TOKEN_DIV 
-  | 15 -> TOKEN_PLUS 
-  | 16 -> TOKEN_MINUS 
-  | 17 -> TOKEN_POW 
-  | 18 -> TOKEN_LPAR 
-  | 19 -> TOKEN_RPAR 
-  | 20 -> TOKEN_EOF 
-  | 21 -> TOKEN_VARIABLE 
-  | 22 -> TOKEN_ASSIGN 
-  | 23 -> TOKEN_SEMICOLON 
-  | 24 -> TOKEN_IFSTART 
-  | 25 -> TOKEN_IFEND 
-  | 26 -> TOKEN_DOSTART 
-  | 27 -> TOKEN_DOEND 
-  | 28 -> TOKEN_ARROW 
-  | 29 -> TOKEN_DOUBLEBRACKETS 
-  | 30 -> TOKEN_NUM 
-  | 33 -> TOKEN_end_of_input
-  | 31 -> TOKEN_error
+  | 0 -> TOKEN_SKIP 
+  | 1 -> TOKEN_LBRA 
+  | 2 -> TOKEN_RBRA 
+  | 3 -> TOKEN_AND 
+  | 4 -> TOKEN_OR 
+  | 5 -> TOKEN_SAND 
+  | 6 -> TOKEN_SOR 
+  | 7 -> TOKEN_NEG 
+  | 8 -> TOKEN_EQUAL 
+  | 9 -> TOKEN_NEQUAL 
+  | 10 -> TOKEN_GT 
+  | 11 -> TOKEN_GEQ 
+  | 12 -> TOKEN_LT 
+  | 13 -> TOKEN_LEQ 
+  | 14 -> TOKEN_TRUE 
+  | 15 -> TOKEN_FALSE 
+  | 16 -> TOKEN_TIMES 
+  | 17 -> TOKEN_DIV 
+  | 18 -> TOKEN_PLUS 
+  | 19 -> TOKEN_MINUS 
+  | 20 -> TOKEN_POW 
+  | 21 -> TOKEN_LPAR 
+  | 22 -> TOKEN_RPAR 
+  | 23 -> TOKEN_EOF 
+  | 24 -> TOKEN_VARIABLE 
+  | 25 -> TOKEN_ASSIGN 
+  | 26 -> TOKEN_SEMICOLON 
+  | 27 -> TOKEN_IFSTART 
+  | 28 -> TOKEN_IFEND 
+  | 29 -> TOKEN_DOSTART 
+  | 30 -> TOKEN_DOEND 
+  | 31 -> TOKEN_ARROW 
+  | 32 -> TOKEN_DOUBLEBRACKETS 
+  | 33 -> TOKEN_VAR 
+  | 34 -> TOKEN_NUM 
+  | 37 -> TOKEN_end_of_input
+  | 35 -> TOKEN_error
   | _ -> failwith "tokenTagToTokenId: bad token"
 
 /// This function maps production indexes returned in syntax errors to strings representing the non terminal that would be produced by that production
@@ -168,9 +184,9 @@ let prodIdxToNonTerminal (prodIdx:int) =
     | 4 -> NONTERM_command 
     | 5 -> NONTERM_command 
     | 6 -> NONTERM_command 
-    | 7 -> NONTERM_bexpression 
-    | 8 -> NONTERM_bexpression 
-    | 9 -> NONTERM_bexpression 
+    | 7 -> NONTERM_command 
+    | 8 -> NONTERM_command 
+    | 9 -> NONTERM_command 
     | 10 -> NONTERM_bexpression 
     | 11 -> NONTERM_bexpression 
     | 12 -> NONTERM_bexpression 
@@ -182,23 +198,31 @@ let prodIdxToNonTerminal (prodIdx:int) =
     | 18 -> NONTERM_bexpression 
     | 19 -> NONTERM_bexpression 
     | 20 -> NONTERM_bexpression 
-    | 21 -> NONTERM_aexpression 
-    | 22 -> NONTERM_aexpression 
-    | 23 -> NONTERM_aexpression 
+    | 21 -> NONTERM_bexpression 
+    | 22 -> NONTERM_bexpression 
+    | 23 -> NONTERM_bexpression 
     | 24 -> NONTERM_aexpression 
     | 25 -> NONTERM_aexpression 
     | 26 -> NONTERM_aexpression 
     | 27 -> NONTERM_aexpression 
     | 28 -> NONTERM_aexpression 
     | 29 -> NONTERM_aexpression 
+    | 30 -> NONTERM_aexpression 
+    | 31 -> NONTERM_aexpression 
+    | 32 -> NONTERM_aexpression 
+    | 33 -> NONTERM_aexpression 
+    | 34 -> NONTERM_aexpression 
     | _ -> failwith "prodIdxToNonTerminal: bad production index"
 
-let _fsyacc_endOfInputTag = 33 
-let _fsyacc_tagOfErrorTerminal = 31
+let _fsyacc_endOfInputTag = 37 
+let _fsyacc_tagOfErrorTerminal = 35
 
 // This function gets the name of a token as a string
 let token_to_string (t:token) = 
   match t with 
+  | SKIP  -> "SKIP" 
+  | LBRA  -> "LBRA" 
+  | RBRA  -> "RBRA" 
   | AND  -> "AND" 
   | OR  -> "OR" 
   | SAND  -> "SAND" 
@@ -229,11 +253,15 @@ let token_to_string (t:token) =
   | DOEND  -> "DOEND" 
   | ARROW  -> "ARROW" 
   | DOUBLEBRACKETS  -> "DOUBLEBRACKETS" 
+  | VAR _ -> "VAR" 
   | NUM _ -> "NUM" 
 
 // This function gets the data carried by a token as an object
 let _fsyacc_dataOfToken (t:token) = 
   match t with 
+  | SKIP  -> (null : System.Object) 
+  | LBRA  -> (null : System.Object) 
+  | RBRA  -> (null : System.Object) 
   | AND  -> (null : System.Object) 
   | OR  -> (null : System.Object) 
   | SAND  -> (null : System.Object) 
@@ -264,19 +292,20 @@ let _fsyacc_dataOfToken (t:token) =
   | DOEND  -> (null : System.Object) 
   | ARROW  -> (null : System.Object) 
   | DOUBLEBRACKETS  -> (null : System.Object) 
+  | VAR _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
   | NUM _fsyacc_x -> Microsoft.FSharp.Core.Operators.box _fsyacc_x 
-let _fsyacc_gotos = [| 0us; 65535us; 1us; 65535us; 0us; 1us; 3us; 65535us; 10us; 7us; 13us; 8us; 15us; 9us; 3us; 65535us; 0us; 2us; 5us; 6us; 12us; 11us; 9us; 65535us; 10us; 4us; 13us; 4us; 15us; 4us; 25us; 19us; 26us; 20us; 27us; 21us; 28us; 22us; 29us; 23us; 44us; 24us; 23us; 65535us; 10us; 30us; 13us; 30us; 15us; 30us; 25us; 30us; 26us; 30us; 27us; 30us; 28us; 30us; 29us; 30us; 32us; 33us; 34us; 35us; 36us; 37us; 38us; 39us; 40us; 41us; 42us; 43us; 44us; 31us; 54us; 46us; 55us; 47us; 56us; 48us; 57us; 49us; 58us; 50us; 59us; 51us; 60us; 52us; 61us; 53us; |]
+let _fsyacc_gotos = [| 0us; 65535us; 1us; 65535us; 0us; 1us; 3us; 65535us; 10us; 7us; 22us; 8us; 24us; 9us; 3us; 65535us; 0us; 2us; 5us; 6us; 21us; 20us; 9us; 65535us; 10us; 4us; 22us; 4us; 24us; 4us; 34us; 28us; 35us; 29us; 36us; 30us; 37us; 31us; 38us; 32us; 53us; 33us; 27us; 65535us; 10us; 39us; 12us; 13us; 14us; 15us; 17us; 18us; 22us; 39us; 24us; 39us; 34us; 39us; 35us; 39us; 36us; 39us; 37us; 39us; 38us; 39us; 41us; 42us; 43us; 44us; 45us; 46us; 47us; 48us; 49us; 50us; 51us; 52us; 53us; 40us; 57us; 58us; 68us; 60us; 69us; 61us; 70us; 62us; 71us; 63us; 72us; 64us; 73us; 65us; 74us; 66us; 75us; 67us; |]
 let _fsyacc_sparseGotoTableRowOffsets = [|0us; 1us; 3us; 7us; 11us; 21us; |]
-let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 2us; 1us; 4us; 1us; 1us; 5us; 2us; 9us; 10us; 11us; 12us; 1us; 2us; 2us; 2us; 4us; 2us; 3us; 3us; 2us; 3us; 5us; 2us; 3us; 6us; 1us; 3us; 2us; 4us; 4us; 1us; 4us; 1us; 5us; 1us; 5us; 1us; 6us; 1us; 6us; 1us; 7us; 1us; 8us; 5us; 9us; 9us; 10us; 11us; 12us; 5us; 9us; 10us; 10us; 11us; 12us; 5us; 9us; 10us; 11us; 11us; 12us; 5us; 9us; 10us; 11us; 12us; 12us; 5us; 9us; 10us; 11us; 12us; 13us; 5us; 9us; 10us; 11us; 12us; 20us; 1us; 9us; 1us; 10us; 1us; 11us; 1us; 12us; 1us; 13us; 11us; 14us; 15us; 16us; 17us; 18us; 19us; 21us; 22us; 23us; 24us; 25us; 12us; 14us; 15us; 16us; 17us; 18us; 19us; 21us; 22us; 23us; 24us; 25us; 28us; 1us; 14us; 6us; 14us; 21us; 22us; 23us; 24us; 25us; 1us; 15us; 6us; 15us; 21us; 22us; 23us; 24us; 25us; 1us; 16us; 6us; 16us; 21us; 22us; 23us; 24us; 25us; 1us; 17us; 6us; 17us; 21us; 22us; 23us; 24us; 25us; 1us; 18us; 6us; 18us; 21us; 22us; 23us; 24us; 25us; 1us; 19us; 6us; 19us; 21us; 22us; 23us; 24us; 25us; 2us; 20us; 28us; 1us; 20us; 6us; 21us; 21us; 22us; 23us; 24us; 25us; 6us; 21us; 22us; 22us; 23us; 24us; 25us; 6us; 21us; 22us; 23us; 23us; 24us; 25us; 6us; 21us; 22us; 23us; 24us; 24us; 25us; 6us; 21us; 22us; 23us; 24us; 25us; 25us; 6us; 21us; 22us; 23us; 24us; 25us; 26us; 6us; 21us; 22us; 23us; 24us; 25us; 27us; 6us; 21us; 22us; 23us; 24us; 25us; 28us; 1us; 21us; 1us; 22us; 1us; 23us; 1us; 24us; 1us; 25us; 1us; 26us; 1us; 27us; 1us; 28us; 1us; 28us; 1us; 29us; |]
-let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 7us; 9us; 15us; 17us; 20us; 23us; 26us; 29us; 31us; 34us; 36us; 38us; 40us; 42us; 44us; 46us; 48us; 54us; 60us; 66us; 72us; 78us; 84us; 86us; 88us; 90us; 92us; 94us; 106us; 119us; 121us; 128us; 130us; 137us; 139us; 146us; 148us; 155us; 157us; 164us; 166us; 173us; 176us; 178us; 185us; 192us; 199us; 206us; 213us; 220us; 227us; 234us; 236us; 238us; 240us; 242us; 244us; 246us; 248us; 250us; 252us; |]
-let _fsyacc_action_rows = 64
-let _fsyacc_actionTableElements = [|2us; 32768us; 24us; 13us; 26us; 15us; 0us; 49152us; 2us; 32768us; 20us; 3us; 23us; 12us; 0us; 16385us; 5us; 32768us; 0us; 25us; 1us; 26us; 2us; 27us; 3us; 28us; 28us; 5us; 2us; 32768us; 24us; 13us; 26us; 15us; 1us; 16386us; 23us; 12us; 0us; 16387us; 2us; 32768us; 25us; 14us; 29us; 10us; 2us; 32768us; 27us; 16us; 29us; 10us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 0us; 16388us; 2us; 32768us; 24us; 13us; 26us; 15us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 0us; 16389us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 0us; 16390us; 0us; 16391us; 0us; 16392us; 0us; 16393us; 0us; 16394us; 0us; 16395us; 0us; 16396us; 0us; 16397us; 5us; 32768us; 0us; 25us; 1us; 26us; 2us; 27us; 3us; 28us; 19us; 45us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 11us; 32768us; 5us; 32us; 6us; 34us; 7us; 36us; 8us; 38us; 9us; 40us; 10us; 42us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 12us; 32768us; 5us; 32us; 6us; 34us; 7us; 36us; 8us; 38us; 9us; 40us; 10us; 42us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 19us; 62us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 5us; 16398us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 5us; 16399us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 5us; 16400us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 5us; 16401us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 5us; 16402us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 5us; 16403us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 7us; 32768us; 4us; 29us; 11us; 17us; 12us; 18us; 15us; 59us; 16us; 60us; 18us; 44us; 30us; 63us; 0us; 16404us; 0us; 16405us; 0us; 16406us; 0us; 16407us; 0us; 16408us; 5us; 16409us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 0us; 16410us; 0us; 16411us; 6us; 32768us; 13us; 56us; 14us; 57us; 15us; 54us; 16us; 55us; 17us; 58us; 19us; 62us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 4us; 32768us; 15us; 59us; 16us; 60us; 18us; 61us; 30us; 63us; 0us; 16412us; 0us; 16413us; |]
-let _fsyacc_actionTableRowOffsets = [|0us; 3us; 4us; 7us; 8us; 14us; 17us; 19us; 20us; 23us; 26us; 34us; 35us; 38us; 46us; 47us; 55us; 56us; 57us; 58us; 59us; 60us; 61us; 62us; 63us; 69us; 77us; 85us; 93us; 101us; 109us; 121us; 134us; 139us; 145us; 150us; 156us; 161us; 167us; 172us; 178us; 183us; 189us; 194us; 200us; 208us; 209us; 210us; 211us; 212us; 213us; 219us; 220us; 221us; 228us; 233us; 238us; 243us; 248us; 253us; 258us; 263us; 268us; 269us; |]
-let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 3us; 3us; 3us; 3us; 1us; 1us; 3us; 3us; 3us; 3us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 2us; 2us; 3us; 1us; |]
-let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 2us; 3us; 3us; 3us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; |]
-let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16389us; 65535us; 16390us; 16391us; 16392us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16404us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16412us; 16413us; |]
+let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 2us; 1us; 7us; 1us; 1us; 5us; 2us; 12us; 13us; 14us; 15us; 1us; 2us; 2us; 2us; 7us; 2us; 3us; 3us; 2us; 3us; 8us; 2us; 3us; 9us; 1us; 3us; 2us; 4us; 5us; 1us; 4us; 6us; 4us; 27us; 28us; 29us; 30us; 31us; 1us; 5us; 6us; 5us; 27us; 28us; 29us; 30us; 31us; 1us; 5us; 1us; 5us; 6us; 5us; 27us; 28us; 29us; 30us; 31us; 1us; 6us; 2us; 7us; 7us; 1us; 7us; 1us; 8us; 1us; 8us; 1us; 9us; 1us; 9us; 1us; 10us; 1us; 11us; 5us; 12us; 12us; 13us; 14us; 15us; 5us; 12us; 13us; 13us; 14us; 15us; 5us; 12us; 13us; 14us; 14us; 15us; 5us; 12us; 13us; 14us; 15us; 15us; 5us; 12us; 13us; 14us; 15us; 16us; 5us; 12us; 13us; 14us; 15us; 23us; 1us; 12us; 1us; 13us; 1us; 14us; 1us; 15us; 1us; 16us; 11us; 17us; 18us; 19us; 20us; 21us; 22us; 27us; 28us; 29us; 30us; 31us; 12us; 17us; 18us; 19us; 20us; 21us; 22us; 27us; 28us; 29us; 30us; 31us; 34us; 1us; 17us; 6us; 17us; 27us; 28us; 29us; 30us; 31us; 1us; 18us; 6us; 18us; 27us; 28us; 29us; 30us; 31us; 1us; 19us; 6us; 19us; 27us; 28us; 29us; 30us; 31us; 1us; 20us; 6us; 20us; 27us; 28us; 29us; 30us; 31us; 1us; 21us; 6us; 21us; 27us; 28us; 29us; 30us; 31us; 1us; 22us; 6us; 22us; 27us; 28us; 29us; 30us; 31us; 2us; 23us; 34us; 1us; 23us; 1us; 24us; 2us; 25us; 26us; 1us; 26us; 6us; 26us; 27us; 28us; 29us; 30us; 31us; 1us; 26us; 6us; 27us; 27us; 28us; 29us; 30us; 31us; 6us; 27us; 28us; 28us; 29us; 30us; 31us; 6us; 27us; 28us; 29us; 29us; 30us; 31us; 6us; 27us; 28us; 29us; 30us; 30us; 31us; 6us; 27us; 28us; 29us; 30us; 31us; 31us; 6us; 27us; 28us; 29us; 30us; 31us; 32us; 6us; 27us; 28us; 29us; 30us; 31us; 33us; 6us; 27us; 28us; 29us; 30us; 31us; 34us; 1us; 27us; 1us; 28us; 1us; 29us; 1us; 30us; 1us; 31us; 1us; 32us; 1us; 33us; 1us; 34us; 1us; 34us; |]
+let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 7us; 9us; 15us; 17us; 20us; 23us; 26us; 29us; 31us; 34us; 36us; 43us; 45us; 52us; 54us; 56us; 63us; 65us; 68us; 70us; 72us; 74us; 76us; 78us; 80us; 82us; 88us; 94us; 100us; 106us; 112us; 118us; 120us; 122us; 124us; 126us; 128us; 140us; 153us; 155us; 162us; 164us; 171us; 173us; 180us; 182us; 189us; 191us; 198us; 200us; 207us; 210us; 212us; 214us; 217us; 219us; 226us; 228us; 235us; 242us; 249us; 256us; 263us; 270us; 277us; 284us; 286us; 288us; 290us; 292us; 294us; 296us; 298us; 300us; |]
+let _fsyacc_action_rows = 77
+let _fsyacc_actionTableElements = [|4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 0us; 49152us; 2us; 32768us; 23us; 3us; 26us; 21us; 0us; 16385us; 5us; 32768us; 3us; 34us; 4us; 35us; 5us; 36us; 6us; 37us; 31us; 5us; 4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 1us; 16386us; 26us; 21us; 0us; 16387us; 2us; 32768us; 28us; 23us; 32us; 10us; 2us; 32768us; 30us; 25us; 32us; 10us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 2us; 32768us; 1us; 14us; 25us; 12us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16388us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 6us; 32768us; 2us; 16us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 1us; 32768us; 25us; 17us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16389us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16390us; 0us; 16391us; 4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16392us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16393us; 0us; 16394us; 0us; 16395us; 0us; 16396us; 0us; 16397us; 0us; 16398us; 0us; 16399us; 0us; 16400us; 5us; 32768us; 3us; 34us; 4us; 35us; 5us; 36us; 6us; 37us; 22us; 54us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 11us; 32768us; 8us; 41us; 9us; 43us; 10us; 45us; 11us; 47us; 12us; 49us; 13us; 51us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 12us; 32768us; 8us; 41us; 9us; 43us; 10us; 45us; 11us; 47us; 12us; 49us; 13us; 51us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 22us; 76us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16401us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16402us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16403us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16404us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16405us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16406us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16407us; 0us; 16408us; 1us; 16409us; 1us; 57us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 6us; 32768us; 2us; 59us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16410us; 0us; 16411us; 0us; 16412us; 0us; 16413us; 0us; 16414us; 5us; 16415us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16416us; 0us; 16417us; 6us; 32768us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 22us; 76us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 0us; 16418us; |]
+let _fsyacc_actionTableRowOffsets = [|0us; 5us; 6us; 9us; 10us; 16us; 21us; 23us; 24us; 27us; 30us; 39us; 42us; 48us; 54us; 60us; 67us; 69us; 75us; 81us; 82us; 83us; 88us; 97us; 98us; 107us; 108us; 109us; 110us; 111us; 112us; 113us; 114us; 115us; 121us; 130us; 139us; 148us; 157us; 166us; 178us; 191us; 197us; 203us; 209us; 215us; 221us; 227us; 233us; 239us; 245us; 251us; 257us; 263us; 272us; 273us; 274us; 276us; 282us; 289us; 290us; 291us; 292us; 293us; 294us; 300us; 301us; 302us; 309us; 315us; 321us; 327us; 333us; 339us; 345us; 351us; 357us; |]
+let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 3us; 3us; 6us; 1us; 3us; 3us; 3us; 1us; 1us; 3us; 3us; 3us; 3us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 1us; 1us; 4us; 3us; 3us; 3us; 3us; 3us; 2us; 2us; 3us; |]
+let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; |]
+let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16390us; 65535us; 65535us; 65535us; 16392us; 65535us; 16393us; 16394us; 16395us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16407us; 16408us; 65535us; 65535us; 65535us; 16410us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16418us; |]
 let _fsyacc_reductions ()  =    [| 
-# 279 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 308 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
@@ -285,18 +314,18 @@ let _fsyacc_reductions ()  =    [|
                       raise (FSharp.Text.Parsing.Accept(Microsoft.FSharp.Core.Operators.box _1))
                    )
                  : '_startstart));
-# 288 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 317 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 43 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 45 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                       _1 
                    )
-# 43 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 45 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
-# 299 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 328 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
@@ -308,7 +337,7 @@ let _fsyacc_reductions ()  =    [|
                    )
 # 56 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : gcommand));
-# 311 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 340 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
@@ -320,308 +349,366 @@ let _fsyacc_reductions ()  =    [|
                    )
 # 57 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : gcommand));
-# 323 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 352 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 60 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                        AssignExpr(_1,_3) 
+                   )
+# 60 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : command));
+# 364 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            let _6 = (let data = parseState.GetInput(6) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 61 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                                        AssignArray(_1, _3, _6) 
+                   )
+# 61 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : command));
+# 377 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 62 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                          Skip 
+                   )
+# 62 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : command));
+# 387 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 61 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                      Commands(_1,_3) 
+# 63 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                          Commands(_1,_3) 
                    )
-# 61 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 63 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
-# 335 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 399 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 62 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                               IfStatement(_2) 
+# 64 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                   IfStatement(_2) 
                    )
-# 62 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 64 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
-# 346 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 410 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 63 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                               DoStatement(_2) 
+# 65 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                   DoStatement(_2) 
                    )
-# 63 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 65 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
-# 357 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 421 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 66 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 68 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                       True 
                    )
-# 66 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 68 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 367 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 431 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 67 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 69 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                        False 
                    )
-# 67 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 69 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 377 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 441 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 68 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 70 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         And(_1,_3) 
                    )
-# 68 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 70 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 389 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 453 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 69 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 71 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                        Or(_1,_3) 
                    )
-# 69 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 71 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 401 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 465 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 70 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 72 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         SAnd(_1,_3) 
                    )
-# 70 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 72 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 413 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 477 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 71 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 73 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         SOr(_1,_3) 
                    )
-# 71 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 73 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 425 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 489 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 72 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 74 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                Neg(_2) 
                    )
-# 72 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 74 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 436 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 500 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 73 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 75 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            Equal(_1,_3) 
                    )
-# 73 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 75 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 448 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 512 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 74 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 76 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            NEqual(_1,_3) 
                    )
-# 74 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 76 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 460 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 524 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 75 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 77 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            Greater(_1,_3) 
                    )
-# 75 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 77 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 472 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 536 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 76 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 78 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            GreaterEqual(_1,_3) 
                    )
-# 76 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 78 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 484 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 548 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 77 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 79 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            Less(_1,_3) 
                    )
-# 77 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 79 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 496 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 560 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 78 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 80 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            LessEqual(_1,_3) 
                    )
-# 78 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 80 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 508 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 572 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 79 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 81 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                    ParBExpr(_2) 
                    )
-# 79 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 81 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 519 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 82 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                           PlusExpr(_1,_3) 
-                   )
-# 82 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 531 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 83 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                           MinusExpr(_1,_3) 
-                   )
-# 83 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 543 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 84 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                           TimesExpr(_1,_3) 
-                   )
-# 84 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 555 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 85 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                           DivExpr(_1,_3) 
-                   )
-# 85 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 567 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 86 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                           PowExpr(_1,_3) 
-                   )
-# 86 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 579 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 87 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                               UPlusExpr(_2) 
-                   )
-# 87 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 590 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 88 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                UMinusExpr(_2) 
-                   )
-# 88 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 601 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
-        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
-            Microsoft.FSharp.Core.Operators.box
-                (
-                   (
-# 89 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                                                   ParAExpr(_2) 
-                   )
-# 89 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
-                 : aexpr));
-# 612 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 583 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : float)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 90 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 84 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                                       Num(_1) 
+                   )
+# 84 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 594 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 85 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                      Var(_1) 
+                   )
+# 85 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 605 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 86 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                      Array(_1, _3) 
+                   )
+# 86 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 617 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 87 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                           PlusExpr(_1,_3) 
+                   )
+# 87 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 629 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 88 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                           MinusExpr(_1,_3) 
+                   )
+# 88 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 641 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 89 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                           TimesExpr(_1,_3) 
+                   )
+# 89 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 653 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 90 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                           DivExpr(_1,_3) 
                    )
 # 90 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
+# 665 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 91 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                           PowExpr(_1,_3) 
+                   )
+# 91 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 677 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 92 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                               UPlusExpr(_2) 
+                   )
+# 92 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 688 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 93 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                UMinusExpr(_2) 
+                   )
+# 93 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
+# 699 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+        (fun (parseState : FSharp.Text.Parsing.IParseState) ->
+            let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
+            Microsoft.FSharp.Core.Operators.box
+                (
+                   (
+# 94 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                                                   ParAExpr(_2) 
+                   )
+# 94 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+                 : aexpr));
 |]
-# 624 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 711 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
 let tables () : FSharp.Text.Parsing.Tables<_> = 
   { reductions= _fsyacc_reductions ();
     endOfInputTag = _fsyacc_endOfInputTag;
@@ -640,7 +727,7 @@ let tables () : FSharp.Text.Parsing.Tables<_> =
                               match parse_error_rich with 
                               | Some f -> f ctxt
                               | None -> parse_error ctxt.Message);
-    numTerminals = 34;
+    numTerminals = 38;
     productionToNonTerminalTable = _fsyacc_productionToNonTerminalTable  }
 let engine lexer lexbuf startState = (tables ()).Interpret(lexer, lexbuf, startState)
 let start lexer lexbuf : command =

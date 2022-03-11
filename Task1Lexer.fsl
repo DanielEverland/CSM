@@ -34,6 +34,8 @@ rule tokenize = parse
 | "true"        { TRUE }
 | "false"       { FALSE }
 | "[]"          { DOUBLEBRACKETS }
+| '['			{ LBRA }
+| ']'			{ RBRA }
 | "->"          { ARROW }
 | ":="          { ASSIGN }
 | '&'           { AND }

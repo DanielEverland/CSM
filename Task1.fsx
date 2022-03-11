@@ -18,6 +18,7 @@ let rec aeval e =
   match e with
     | Num(x)                -> (string) x
     | Var(x)                -> "" + x
+    | Array(x,y)            -> "" + x + "[" + aeval(y) + "]"
     | TimesExpr(x,y)        -> "" + aeval(x) + " * " + aeval (y)
     | DivExpr(x,y)          -> "" + aeval(x) + " / " + aeval (y)
     | PlusExpr(x,y)         -> "" + aeval(x) + " + " + aeval (y)
@@ -72,7 +73,6 @@ let rec compute n =
     else
         printf "Enter an input program: "
 
-        try
         // We parse the input string
         let e = parse (Console.ReadLine())       
         
@@ -80,7 +80,6 @@ let rec compute n =
         printfn "Result: \n%s" (ceval e)
 
         compute n
-        with err -> compute (n-1)
 
 // Start interacting with the user
 compute 3
