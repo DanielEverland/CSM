@@ -299,8 +299,8 @@ let _fsyacc_sparseGotoTableRowOffsets = [|0us; 1us; 3us; 7us; 11us; 21us; |]
 let _fsyacc_stateToProdIdxsTableElements = [| 1us; 0us; 1us; 0us; 2us; 1us; 7us; 1us; 1us; 5us; 2us; 12us; 13us; 14us; 15us; 1us; 2us; 2us; 2us; 7us; 2us; 3us; 3us; 2us; 3us; 8us; 2us; 3us; 9us; 1us; 3us; 2us; 4us; 5us; 1us; 4us; 6us; 4us; 27us; 28us; 29us; 30us; 31us; 1us; 5us; 6us; 5us; 27us; 28us; 29us; 30us; 31us; 1us; 5us; 1us; 5us; 6us; 5us; 27us; 28us; 29us; 30us; 31us; 1us; 6us; 2us; 7us; 7us; 1us; 7us; 1us; 8us; 1us; 8us; 1us; 9us; 1us; 9us; 1us; 10us; 1us; 11us; 5us; 12us; 12us; 13us; 14us; 15us; 5us; 12us; 13us; 13us; 14us; 15us; 5us; 12us; 13us; 14us; 14us; 15us; 5us; 12us; 13us; 14us; 15us; 15us; 5us; 12us; 13us; 14us; 15us; 16us; 5us; 12us; 13us; 14us; 15us; 23us; 1us; 12us; 1us; 13us; 1us; 14us; 1us; 15us; 1us; 16us; 11us; 17us; 18us; 19us; 20us; 21us; 22us; 27us; 28us; 29us; 30us; 31us; 12us; 17us; 18us; 19us; 20us; 21us; 22us; 27us; 28us; 29us; 30us; 31us; 34us; 1us; 17us; 6us; 17us; 27us; 28us; 29us; 30us; 31us; 1us; 18us; 6us; 18us; 27us; 28us; 29us; 30us; 31us; 1us; 19us; 6us; 19us; 27us; 28us; 29us; 30us; 31us; 1us; 20us; 6us; 20us; 27us; 28us; 29us; 30us; 31us; 1us; 21us; 6us; 21us; 27us; 28us; 29us; 30us; 31us; 1us; 22us; 6us; 22us; 27us; 28us; 29us; 30us; 31us; 2us; 23us; 34us; 1us; 23us; 1us; 24us; 2us; 25us; 26us; 1us; 26us; 6us; 26us; 27us; 28us; 29us; 30us; 31us; 1us; 26us; 6us; 27us; 27us; 28us; 29us; 30us; 31us; 6us; 27us; 28us; 28us; 29us; 30us; 31us; 6us; 27us; 28us; 29us; 29us; 30us; 31us; 6us; 27us; 28us; 29us; 30us; 30us; 31us; 6us; 27us; 28us; 29us; 30us; 31us; 31us; 6us; 27us; 28us; 29us; 30us; 31us; 32us; 6us; 27us; 28us; 29us; 30us; 31us; 33us; 6us; 27us; 28us; 29us; 30us; 31us; 34us; 1us; 27us; 1us; 28us; 1us; 29us; 1us; 30us; 1us; 31us; 1us; 32us; 1us; 33us; 1us; 34us; 1us; 34us; |]
 let _fsyacc_stateToProdIdxsTableRowOffsets = [|0us; 2us; 4us; 7us; 9us; 15us; 17us; 20us; 23us; 26us; 29us; 31us; 34us; 36us; 43us; 45us; 52us; 54us; 56us; 63us; 65us; 68us; 70us; 72us; 74us; 76us; 78us; 80us; 82us; 88us; 94us; 100us; 106us; 112us; 118us; 120us; 122us; 124us; 126us; 128us; 140us; 153us; 155us; 162us; 164us; 171us; 173us; 180us; 182us; 189us; 191us; 198us; 200us; 207us; 210us; 212us; 214us; 217us; 219us; 226us; 228us; 235us; 242us; 249us; 256us; 263us; 270us; 277us; 284us; 286us; 288us; 290us; 292us; 294us; 296us; 298us; 300us; |]
 let _fsyacc_action_rows = 77
-let _fsyacc_actionTableElements = [|4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 0us; 49152us; 2us; 32768us; 23us; 3us; 26us; 21us; 0us; 16385us; 5us; 32768us; 3us; 34us; 4us; 35us; 5us; 36us; 6us; 37us; 31us; 5us; 4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 1us; 16386us; 26us; 21us; 0us; 16387us; 2us; 32768us; 28us; 23us; 32us; 10us; 2us; 32768us; 30us; 25us; 32us; 10us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 2us; 32768us; 1us; 14us; 25us; 12us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16388us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 6us; 32768us; 2us; 16us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 1us; 32768us; 25us; 17us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16389us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16390us; 0us; 16391us; 4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16392us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16393us; 0us; 16394us; 0us; 16395us; 0us; 16396us; 0us; 16397us; 0us; 16398us; 0us; 16399us; 0us; 16400us; 5us; 32768us; 3us; 34us; 4us; 35us; 5us; 36us; 6us; 37us; 22us; 54us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 11us; 32768us; 8us; 41us; 9us; 43us; 10us; 45us; 11us; 47us; 12us; 49us; 13us; 51us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 12us; 32768us; 8us; 41us; 9us; 43us; 10us; 45us; 11us; 47us; 12us; 49us; 13us; 51us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 22us; 76us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16401us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16402us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16403us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16404us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16405us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16406us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16407us; 0us; 16408us; 1us; 16409us; 1us; 57us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 6us; 32768us; 2us; 59us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16410us; 0us; 16411us; 0us; 16412us; 0us; 16413us; 0us; 16414us; 5us; 16415us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16416us; 0us; 16417us; 6us; 32768us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 22us; 76us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 0us; 16418us; |]
-let _fsyacc_actionTableRowOffsets = [|0us; 5us; 6us; 9us; 10us; 16us; 21us; 23us; 24us; 27us; 30us; 39us; 42us; 48us; 54us; 60us; 67us; 69us; 75us; 81us; 82us; 83us; 88us; 97us; 98us; 107us; 108us; 109us; 110us; 111us; 112us; 113us; 114us; 115us; 121us; 130us; 139us; 148us; 157us; 166us; 178us; 191us; 197us; 203us; 209us; 215us; 221us; 227us; 233us; 239us; 245us; 251us; 257us; 263us; 272us; 273us; 274us; 276us; 282us; 289us; 290us; 291us; 292us; 293us; 294us; 300us; 301us; 302us; 309us; 315us; 321us; 327us; 333us; 339us; 345us; 351us; 357us; |]
+let _fsyacc_actionTableElements = [|4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 0us; 49152us; 2us; 32768us; 23us; 3us; 26us; 21us; 0us; 16385us; 5us; 32768us; 3us; 34us; 4us; 35us; 5us; 36us; 6us; 37us; 31us; 5us; 4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 1us; 16386us; 26us; 21us; 1us; 16387us; 32us; 10us; 2us; 32768us; 28us; 23us; 32us; 10us; 2us; 32768us; 30us; 25us; 32us; 10us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 2us; 32768us; 1us; 14us; 25us; 12us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16388us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 6us; 32768us; 2us; 16us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 1us; 32768us; 25us; 17us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16389us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16390us; 1us; 16391us; 26us; 21us; 4us; 32768us; 0us; 19us; 27us; 22us; 29us; 24us; 33us; 11us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16392us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16393us; 0us; 16394us; 0us; 16395us; 0us; 16396us; 2us; 16397us; 3us; 34us; 5us; 36us; 0us; 16398us; 2us; 16399us; 3us; 34us; 5us; 36us; 0us; 16400us; 5us; 32768us; 3us; 34us; 4us; 35us; 5us; 36us; 6us; 37us; 22us; 54us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 11us; 32768us; 8us; 41us; 9us; 43us; 10us; 45us; 11us; 47us; 12us; 49us; 13us; 51us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 12us; 32768us; 8us; 41us; 9us; 43us; 10us; 45us; 11us; 47us; 12us; 49us; 13us; 51us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 22us; 76us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16401us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16402us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16403us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16404us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16405us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 16406us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 8us; 32768us; 7us; 38us; 14us; 26us; 15us; 27us; 18us; 73us; 19us; 74us; 21us; 53us; 33us; 56us; 34us; 55us; 0us; 16407us; 0us; 16408us; 1us; 16409us; 1us; 57us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 6us; 32768us; 2us; 59us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 0us; 16410us; 3us; 16411us; 16us; 70us; 17us; 71us; 20us; 72us; 3us; 16412us; 16us; 70us; 17us; 71us; 20us; 72us; 1us; 16413us; 20us; 72us; 1us; 16414us; 20us; 72us; 1us; 16415us; 20us; 72us; 3us; 16416us; 16us; 70us; 17us; 71us; 20us; 72us; 3us; 16417us; 16us; 70us; 17us; 71us; 20us; 72us; 6us; 32768us; 16us; 70us; 17us; 71us; 18us; 68us; 19us; 69us; 20us; 72us; 22us; 76us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 5us; 32768us; 18us; 73us; 19us; 74us; 21us; 75us; 33us; 56us; 34us; 55us; 0us; 16418us; |]
+let _fsyacc_actionTableRowOffsets = [|0us; 5us; 6us; 9us; 10us; 16us; 21us; 23us; 25us; 28us; 31us; 40us; 43us; 49us; 55us; 61us; 68us; 70us; 76us; 82us; 83us; 85us; 90us; 99us; 100us; 109us; 110us; 111us; 112us; 113us; 116us; 117us; 120us; 121us; 127us; 136us; 145us; 154us; 163us; 172us; 184us; 197us; 203us; 209us; 215us; 221us; 227us; 233us; 239us; 245us; 251us; 257us; 263us; 269us; 278us; 279us; 280us; 282us; 288us; 295us; 296us; 300us; 304us; 306us; 308us; 310us; 314us; 318us; 325us; 331us; 337us; 343us; 349us; 355us; 361us; 367us; 373us; |]
 let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 3us; 3us; 6us; 1us; 3us; 3us; 3us; 1us; 1us; 3us; 3us; 3us; 3us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 3us; 1us; 1us; 4us; 3us; 3us; 3us; 3us; 3us; 2us; 2us; 3us; |]
 let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; |]
 let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16390us; 65535us; 65535us; 65535us; 16392us; 65535us; 16393us; 16394us; 16395us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16407us; 16408us; 65535us; 65535us; 65535us; 16410us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16418us; |]
@@ -320,10 +320,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 45 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 57 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                       _1 
                    )
-# 45 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 57 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 328 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -332,10 +332,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 56 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 68 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                       BooleanGuard(_1,_3) 
                    )
-# 56 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 68 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : gcommand));
 # 340 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -344,10 +344,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 57 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 69 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                   GCommands(_1,_3) 
                    )
-# 57 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 69 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : gcommand));
 # 352 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -356,10 +356,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 60 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 72 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         AssignExpr(_1,_3) 
                    )
-# 60 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 72 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 364 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -369,20 +369,20 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 61 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 73 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                                         AssignArray(_1, _3, _6) 
                    )
-# 61 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 73 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 377 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 62 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 74 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                           Skip 
                    )
-# 62 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 74 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 387 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -391,10 +391,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 63 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 75 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                           Commands(_1,_3) 
                    )
-# 63 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 75 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 399 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -402,10 +402,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 64 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 76 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                    IfStatement(_2) 
                    )
-# 64 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 76 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 410 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -413,30 +413,30 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 65 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 77 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                    DoStatement(_2) 
                    )
-# 65 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 77 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : command));
 # 421 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 68 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 80 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                       True 
                    )
-# 68 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 80 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 431 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 69 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 81 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                        False 
                    )
-# 69 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 81 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 441 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -445,10 +445,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 70 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 82 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         And(_1,_3) 
                    )
-# 70 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 82 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 453 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -457,10 +457,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 71 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 83 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                        Or(_1,_3) 
                    )
-# 71 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 83 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 465 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -469,10 +469,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 72 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 84 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         SAnd(_1,_3) 
                    )
-# 72 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 84 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 477 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -481,10 +481,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 73 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 85 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                         SOr(_1,_3) 
                    )
-# 73 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 85 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 489 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -492,10 +492,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 74 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 86 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                Neg(_2) 
                    )
-# 74 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 86 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 500 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -504,10 +504,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 75 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 87 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            Equal(_1,_3) 
                    )
-# 75 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 87 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 512 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -516,10 +516,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 76 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 88 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            NEqual(_1,_3) 
                    )
-# 76 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 88 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 524 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -528,10 +528,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 77 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 89 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            Greater(_1,_3) 
                    )
-# 77 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 89 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 536 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -540,10 +540,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 78 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 90 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            GreaterEqual(_1,_3) 
                    )
-# 78 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 90 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 548 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -552,10 +552,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 79 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 91 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            Less(_1,_3) 
                    )
-# 79 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 91 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 560 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -564,10 +564,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 80 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 92 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            LessEqual(_1,_3) 
                    )
-# 80 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 92 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 572 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -575,10 +575,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 81 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 93 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                    ParBExpr(_2) 
                    )
-# 81 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 93 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : bexpr));
 # 583 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -586,10 +586,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 84 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 96 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                       Num(_1) 
                    )
-# 84 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 96 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 594 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -597,10 +597,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 85 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 97 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                       Var(_1) 
                    )
-# 85 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 97 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 605 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -609,10 +609,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 86 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 98 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                       Array(_1, _3) 
                    )
-# 86 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 98 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 617 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -621,10 +621,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 87 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 99 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            PlusExpr(_1,_3) 
                    )
-# 87 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 99 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 629 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -633,10 +633,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 88 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 100 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            MinusExpr(_1,_3) 
                    )
-# 88 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 100 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 641 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -645,10 +645,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 89 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 101 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            TimesExpr(_1,_3) 
                    )
-# 89 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 101 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 653 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -657,10 +657,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 90 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 102 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            DivExpr(_1,_3) 
                    )
-# 90 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 102 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 665 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -669,10 +669,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 91 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 103 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                            PowExpr(_1,_3) 
                    )
-# 91 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 103 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 677 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -680,10 +680,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 92 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 104 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                UPlusExpr(_2) 
                    )
-# 92 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 104 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 688 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -691,10 +691,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 93 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 105 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                 UMinusExpr(_2) 
                    )
-# 93 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 105 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 # 699 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
@@ -702,10 +702,10 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 94 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 106 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                                                    ParAExpr(_2) 
                    )
-# 94 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 106 "C:\Users\simon\Documents\GitHub\CSM\\Task1Parser.fsp"
                  : aexpr));
 |]
 # 711 "C:\Users\simon\Documents\GitHub\CSM\Task1Parser.fs"

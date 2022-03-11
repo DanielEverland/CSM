@@ -46,12 +46,12 @@ and beval e =
 and gceval e =
   match e with
     | BooleanGuard(x, y)    -> "" + beval(x) + " -> " + ceval(y)
-    | GCommands(x, y)       -> "" + gceval(x) + " [] " + gceval(y)
+    | GCommands(x, y)       -> "" + gceval(x) + " \n[] " + gceval(y)
 and ceval e =
   match e with
-    | Commands(x, y)        -> "" + ceval(x) + " ; " + ceval(y)
-    | IfStatement(x)        -> "" + "if" + gceval(x) + "fi"
-    | DoStatement(x)        -> "" + "do" + gceval(x) + "od"
+    | Commands(x, y)        -> "" + ceval(x) + " ; \n" + ceval(y)
+    | IfStatement(x)        -> "" + "if " + gceval(x) + "\nfi"
+    | DoStatement(x)        -> "" + "do " + gceval(x) + "\nod"
     | AssignExpr(x, y)      -> "" + x + " := " + aeval(y)
     | AssignArray(x, y, z)  -> "" + x + "[" + aeval(y) + "]" + " := " + aeval(z)
     | Skip                  -> " skip "
@@ -69,17 +69,20 @@ let parse input =
 // We implement here the function that interacts with the user
 let rec compute n =
     if n = 0 then
-        printfn "Bye bye"
+        printf "Shits fucked"
     else
         printf "Enter an input program: "
 
         // We parse the input string
+        try
+
         let e = parse (Console.ReadLine())       
         
         // and print the result of evaluating it        
         printfn "Result: \n%s" (ceval e)
 
         compute n
+        with err -> compute 0
 
 // Start interacting with the user
 compute 3

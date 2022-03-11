@@ -23,8 +23,20 @@ open Task1TypesAST
 
 // Specify precedence and associativity of operators
 // Precedence is given by the order (from low to high)
-%right ASSIGN NEQ POW LPAR
-%left EQUAL NEQUAL LT LEQ GT GEQ PLUS MINUS TIMES DIV RPAR DOUBLEBRACKETS SEMICOLON AND OR SAND SOR NEG
+%right DOUBLEBRACKETS SEMICOLON
+%right ASSIGN
+%left SOR OR
+%left SAND AND
+%left EQUAL NEQUAL
+%left LT LEQ
+%left GT GEQ
+%right NEG
+%left PLUS MINUS
+%left TIMES DIV
+%right POW
+%right LPAR
+%left RPAR
+
 
 // We declare the initial non-terminal symbol
 %start start
