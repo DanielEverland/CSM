@@ -16,40 +16,44 @@ open Task1Lexer
 // of arithmetic expressions (AST of type expr)
 let rec aeval e =
   match e with
-    | Num(x) -> x
-    | TimesExpr(x,y)        -> aeval(x) * aeval (y)
-    | DivExpr(x,y)          -> aeval(x) / aeval (y)
-    | PlusExpr(x,y)         -> aeval(x) + aeval (y)
-    | MinusExpr(x,y)        -> aeval(x) - aeval (y)
-    | PowExpr(x,y)          -> aeval(x) ** aeval (y)
-    | UPlusExpr(x)          -> aeval(x)
-    | UMinusExpr(x)         -> - aeval(x)
-    | ParAExpr(x)            -> ( aeval(x) )
+    | Num(x)                -> (string) x
+    | Var(x)                -> "" + x
+    | TimesExpr(x,y)        -> "" + aeval(x) + " * " + aeval (y)
+    | DivExpr(x,y)          -> "" + aeval(x) + " / " + aeval (y)
+    | PlusExpr(x,y)         -> "" + aeval(x) + " + " + aeval (y)
+    | MinusExpr(x,y)        -> "" + aeval(x) + " - " + aeval (y)
+    | PowExpr(x,y)          -> "" + aeval(x) + " ** " + aeval (y)
+    | UPlusExpr(x)          -> "" + aeval(x)
+    | UMinusExpr(x)         -> "" + " -" + aeval(x)
+    | ParAExpr(x)           -> "" + "(" + aeval(x) + ")"
 and beval e =
   match e with
-    | True                  -> true
-    | False                 -> false
-    | SAnd(x, y)            -> beval(x) && beval(y)
-    | SOr(x, y)             -> beval(x) || beval(y)
-    | Neg(x)                -> not (beval(x))
-    | Equal(x, y)           -> aeval(x) = aeval(y)
-    | NEqual(x, y)          -> aeval(x) <> aeval(y)
-    | Greater(x, y)         -> aeval(x) > aeval(y)
-    | GreaterEqual(x, y)    -> aeval(x) >= aeval(y)
-    | Less(x, y)            -> aeval(x) < aeval(y)
-    | LessEqual(x, y)       -> aeval(x) <= aeval(y)
-    | ParBExpr(x)            -> ( beval(x) )
+    | True                  -> "true"
+    | False                 -> "false"
+    | And(x, y)             -> "" + beval(x) + " & " + beval(y)
+    | Or(x, y)              -> "" + beval(x) + " | " + beval(y)
+    | SAnd(x, y)            -> "" + beval(x) + " && " + beval(y)
+    | SOr(x, y)             -> "" + beval(x) + " || " + beval(y)
+    | Neg(x)                -> "" + " !" + (beval(x))
+    | Equal(x, y)           -> "" + aeval(x) + " = " + aeval(y)
+    | NEqual(x, y)          -> "" + aeval(x) + " <> " + aeval(y)
+    | Greater(x, y)         -> "" + aeval(x) + " > " + aeval(y)
+    | GreaterEqual(x, y)    -> "" + aeval(x) + " >= " + aeval(y)
+    | Less(x, y)            -> "" + aeval(x) + " < " + aeval(y)
+    | LessEqual(x, y)       -> "" + aeval(x) + " <= " + aeval(y)
+    | ParBExpr(x)           -> "" + "(" + beval(x) + ")"
 and gceval e =
   match e with
-    | BooleanGuard(x, y)    -> if beval(x) then ceval(y)
-    | GCommands(x, y)       -> gceval(x)
-                               gceval(y)
+    | BooleanGuard(x, y)    -> "" + beval(x) + " -> " + ceval(y)
+    | GCommands(x, y)       -> "" + gceval(x) + " [] " + gceval(y)
 and ceval e =
   match e with
-    | Commands(x, y)        -> ceval(x)
-                               ceval(y)
-    |IfStatement(x)         -> gceval(x) //????
-    |DoStatement(x)         -> gceval(x) //????
+    | Commands(x, y)        -> "" + ceval(x) + " ; " + ceval(y)
+    | IfStatement(x)        -> "" + "if" + gceval(x) + "fi"
+    | DoStatement(x)        -> "" + "do" + gceval(x) + "od"
+    | AssignExpr(x, y)      -> "" + x + " := " + aeval(y)
+    | AssignArray(x, y, z)  -> "" + x + "[" + aeval(y) + "]" + " := " + aeval(z)
+    | Skip                  -> " skip "
 //Don't know how to evaluate variables, skip and arrays or assign expressions
 
 // We
@@ -66,12 +70,15 @@ let rec compute n =
     if n = 0 then
         printfn "Bye bye"
     else
-        printf "Enter an arithmetic expression: "
+        printf "Enter an input program: "
+
         try
         // We parse the input string
-        let e = parse (Console.ReadLine())
-        // and print the result of evaluating it        
+        let e = parse (Console.ReadLine())       
         
+        // and print the result of evaluating it        
+        printfn "Result: \n%s" (ceval e)
+
         compute n
         with err -> compute (n-1)
 
