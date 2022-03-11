@@ -4,13 +4,10 @@ open Task1TypesAST
 %}
 
 // Declare the tokens (terminal symbols)
-%token ARROW DOUBLEBRACKETS
-
-%token VARIABLE ASSIGN SEMICOLON IFSTART IFEND DOSTART DOEND 
-
 %token <float> NUM
+%token ARROW DOUBLEBRACKETS
+%token VARIABLE ASSIGN SEMICOLON IFSTART IFEND DOSTART DOEND 
 %token TIMES DIV PLUS MINUS POW LPAR RPAR EOF
-
 %token AND OR SAND SOR NEG EQUAL NEQUAL GT GEQ LT LEQ TRUE FALSE
 
 // NOTE: the actual formats of these tokens are defined in the lexer file
@@ -24,19 +21,8 @@ open Task1TypesAST
 
 // Specify precedence and associativity of operators
 // Precedence is given by the order (from low to high)
-%right ASSIGN
-%left OR AND
-%left SOR SAND
-%left EQUAL NEQUAL
-%left LT LEQ
-%left GT GEQ
-%right NEQ
-%left PLUS MINUS
-%left TIMES DIV
-%right POW
-%right LPAR
-%left RPAR
-
+%right ASSIGN NEQ POW LPAR
+%left EQUAL NEQUAL LT LEQ GT GEQ PLUS MINUS TIMES DIV RPAR DOUBLEBRACKETS SEMICOLON AND OR SAND SOR NEG
 
 // We declare the initial non-terminal symbol
 %start start

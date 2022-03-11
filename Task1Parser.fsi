@@ -22,7 +22,6 @@ type token =
   | LPAR
   | RPAR
   | EOF
-  | NUM of (float)
   | VARIABLE
   | ASSIGN
   | SEMICOLON
@@ -32,6 +31,7 @@ type token =
   | DOEND
   | ARROW
   | DOUBLEBRACKETS
+  | NUM of (float)
 type tokenId = 
     | TOKEN_AND
     | TOKEN_OR
@@ -54,7 +54,6 @@ type tokenId =
     | TOKEN_LPAR
     | TOKEN_RPAR
     | TOKEN_EOF
-    | TOKEN_NUM
     | TOKEN_VARIABLE
     | TOKEN_ASSIGN
     | TOKEN_SEMICOLON
@@ -64,6 +63,7 @@ type tokenId =
     | TOKEN_DOEND
     | TOKEN_ARROW
     | TOKEN_DOUBLEBRACKETS
+    | TOKEN_NUM
     | TOKEN_end_of_input
     | TOKEN_error
 type nonTerminalId = 
