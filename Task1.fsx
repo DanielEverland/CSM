@@ -67,22 +67,17 @@ let parse input =
     res
 
 // We implement here the function that interacts with the user
-let rec compute n =
-    if n = 0 then
-        printf "Shits fucked"
-    else
-        printf "Enter an input program: "
+let compute =
+    printf "Enter an input program: "
 
-        // We parse the input string
-        try
+    // We parse the input string
+    try
+    let c = parse (Console.ReadLine())       
 
-        let e = parse (Console.ReadLine())       
-        
-        // and print the result of evaluating it        
-        printfn "Result: \n%s" (ceval e)
+    // and print the result of evaluating it        
+    printfn "Result: \n%s" (ceval c)
 
-        compute n
-        with err -> compute 0
+    with err -> printf "Couldn't parse program"
 
 // Start interacting with the user
-compute 3
+compute
