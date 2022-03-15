@@ -66,14 +66,13 @@ type Node = | Start
                     | Inter x -> "q" + string x
 
 let printEdge qFrom label qTo = qFrom.ToString() + " -> " + qTo.ToString() + " [label = \"" + label + "\"];"
- 
-let mutable n = 1
+
+let mutable n = 0
 
 let getFresh q = match q with
-                    | Start     -> Inter n
-                    | Inter _   -> n <- n + 1
-                                   Inter (n)
-                    | End       -> failwith "qFrom can't be End"
+                 | Start|Inter _ -> n <- n + 1
+                                    Inter n
+                 | End           -> failwith "qFrom can't be end node"
 
 let doneGC = function
     | BooleanGuard(x,_)     -> "!(" + beval(x) + ")"
