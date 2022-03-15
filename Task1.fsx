@@ -18,49 +18,67 @@ open Task1Lexer
 // Toggles whether a deterministic program graph is created
 let determinism = true
 
+let variables = Map.empty
+let arrays = Map.empty
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
 let rec aeval e =
   match e with
-    | Num(x)                -> (string) x
-    | Var(x)                -> "" + x
-    | Array(x,y)            -> "" + x + "[" + aeval(y) + "]"
-    | TimesExpr(x,y)        -> "" + aeval(x) + "*" + aeval (y)
-    | DivExpr(x,y)          -> "" + aeval(x) + "/" + aeval (y)
-    | PlusExpr(x,y)         -> "" + aeval(x) + "+" + aeval (y)
-    | MinusExpr(x,y)        -> "" + aeval(x) + "-" + aeval (y)
-    | PowExpr(x,y)          -> "" + aeval(x) + "**" + aeval (y)
-    | UPlusExpr(x)          -> "" + aeval(x)
-    | UMinusExpr(x)         -> "" + " -" + aeval(x)
-    | ParAExpr(x)           -> "" + "(" + aeval(x) + ")"
+    | Num(x)                -> x
+    | Var(x)                ->  match Map.tryFind x variables with
+                                | Some value -> value
+                                | None -> failwith "No variable with name " + x + " exists."
+    | Array(x,y)            ->  match List.tryFindIndex (fun elm -> elm = aeval(y)) (Map.find x arrays) with
+                                | Some value -> value
+                                | None -> failwith "Index " + aeval(y) + " not found."
+    | TimesExpr(x,y)        -> aeval(x) * aeval(y)
+    | DivExpr(x,y)          -> aeval(x) / aeval(y)
+    | PlusExpr(x,y)         -> aeval(x) + aeval(y)
+    | MinusExpr(x,y)        -> aeval(x) - aeval(y)
+    | PowExpr(x,y)          -> aeval(x) ** aeval(y)
+    | UPlusExpr(x)          -> aeval(x)
+    | UMinusExpr(x)         -> -aeval(x)
+    | ParAExpr(x)           -> aeval(x)
 and beval e =
   match e with
-    | True                  -> "true"
-    | False                 -> "false"
-    | And(x, y)             -> "" + beval(x) + "&" + beval(y)
-    | Or(x, y)              -> "" + beval(x) + "|" + beval(y)
-    | SAnd(x, y)            -> "" + beval(x) + "&&" + beval(y)
-    | SOr(x, y)             -> "" + beval(x) + "||" + beval(y)
-    | Neg(x)                -> "!" + (beval(x))
-    | Equal(x, y)           -> "" + aeval(x) + "=" + aeval(y)
-    | NEqual(x, y)          -> "" + aeval(x) + "<>" + aeval(y)
-    | Greater(x, y)         -> "" + aeval(x) + ">" + aeval(y)
-    | GreaterEqual(x, y)    -> "" + aeval(x) + ">=" + aeval(y)
-    | Less(x, y)            -> "" + aeval(x) + "<" + aeval(y)
-    | LessEqual(x, y)       -> "" + aeval(x) + "<=" + aeval(y)
-    | ParBExpr(x)           -> "" + "(" + beval(x) + ")"
+    | True                  -> true
+    | False                 -> false
+    | And(x, y)             ->  let lhs = beval(x)
+                                let rhs = beval(y)
+                                lhs && rhs
+    | Or(x, y)              ->  let lhs = beval(x)
+                                let rhs = beval(y)
+                                lhs || rhs
+    | SAnd(x, y)            -> beval(x) && beval(y)
+    | SOr(x, y)             -> beval(x) || beval(y)
+    | Neg(x)                -> !beval(x)
+    | Equal(x, y)           -> aeval(x) = aeval(y)
+    | NEqual(x, y)          -> aeval(x) <> aeval(y)
+    | Greater(x, y)         -> aeval(x) > aeval(y)
+    | GreaterEqual(x, y)    -> aeval(x) >= aeval(y)
+    | Less(x, y)            -> aeval(x) < aeval(y)
+    | LessEqual(x, y)       -> aeval(x) <= aeval(y)
+    | ParBExpr(x)           -> beval(x)
 and gceval e =
   match e with
-    | BooleanGuard(x, y)    -> "" + beval(x) + "\n" + ceval(y)
-    | GCommands(x, y)       -> "" + gceval(x) + " \n[] " + gceval(y)
+    | BooleanGuard(x, y)    -> if beval(x) then ceval(y)
+    | GCommands(x, y)       ->  gceval(x)
+                                gceval(y)
 and ceval e =
   match e with
-    | Commands(x, y)        -> "" + ceval(x) + " ; \n" + ceval(y)
-    | IfStatement(x)        -> "" + gceval(x)
-    | DoStatement(x)        -> "" + gceval(x)
-    | AssignExpr(x, y)      -> "" + x + ":=" + aeval(y)
-    | AssignArray(x, y, z)  -> "" + x + "[" + aeval(y) + "]" + ":=" + aeval(z)
+    | Commands(x, y)        ->  ceval(x)
+                                ceval(y)
+    | IfStatement(x)        -> gceval(x)
+    | DoStatement(x)        -> gceval(x)
+    | AssignExpr(x, y)      -> variables.Change (x, (fun elm =  match elm with
+                                                                | Some -> aeval(y)
+                                                                | None -> failwith "No variable with name " + x + " exists."))
+    | AssignArray(x, y, z)  -> match List.tryFindIndex (fun elm -> elm = aeval(y)) (Map.find x arrays) with
+                                | Some value -> value
+                                | None -> failwith "Index " + aeval(y) + " not found."
+    
+    "" + x + "[" + aeval(y) + "]" + ":=" + aeval(z)
     | Skip                  -> " skip "
 
 type Node = | Start
