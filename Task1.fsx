@@ -31,17 +31,17 @@ and beval e =
   match e with
     | True                  -> "true"
     | False                 -> "false"
-    | And(x, y)             -> "(" + beval(x) + "&" + beval(y) + ")"
-    | Or(x, y)              -> "(" + beval(x) + "|" + beval(y) + ")"
-    | SAnd(x, y)            -> "(" + beval(x) + "&&" + beval(y) + ")"
-    | SOr(x, y)             -> "(" + beval(x) + "||" + beval(y) + ")"
-    | Neg(x)                -> "" + "!" + (beval(x))
+    | And(x, y)             -> "" + beval(x) + "&" + beval(y)
+    | Or(x, y)              -> "" + beval(x) + "|" + beval(y)
+    | SAnd(x, y)            -> "" + beval(x) + "&&" + beval(y)
+    | SOr(x, y)             -> "" + beval(x) + "||" + beval(y)
+    | Neg(x)                -> "!" + (beval(x))
     | Equal(x, y)           -> "" + aeval(x) + "=" + aeval(y)
-    | NEqual(x, y)          -> "(" + aeval(x) + "<>" + aeval(y) + ")"
-    | Greater(x, y)         -> "(" + aeval(x) + ">" + aeval(y) + ")"
-    | GreaterEqual(x, y)    -> "(" + aeval(x) + ">=" + aeval(y) + ")"
-    | Less(x, y)            -> "(" + aeval(x) + "<" + aeval(y) + ")"
-    | LessEqual(x, y)       -> "(" + aeval(x) + "<=" + aeval(y) + ")"
+    | NEqual(x, y)          -> "" + aeval(x) + "<>" + aeval(y)
+    | Greater(x, y)         -> "" + aeval(x) + ">" + aeval(y)
+    | GreaterEqual(x, y)    -> "" + aeval(x) + ">=" + aeval(y)
+    | Less(x, y)            -> "" + aeval(x) + "<" + aeval(y)
+    | LessEqual(x, y)       -> "" + aeval(x) + "<=" + aeval(y)
     | ParBExpr(x)           -> "" + "(" + beval(x) + ")"
 and gceval e =
   match e with
@@ -105,7 +105,7 @@ and edgesGC qFrom qTo GC b =
                                                                                           let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
                                                                                           E1 @ E2
                                   | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                          let E2 = edgesGC qFrom qTo (BooleanGuard(And(And(b2, Neg(b1)), b), c1)) (And(b, Neg(b1)))
+                                                                                          let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(b1, Neg(b)))), c1)) (And(b, Neg(b1)))
                                                                                           E1 @ E2
                                   | _ ->  let E1 = edgesGC qFrom qTo gc1 b
                                           let E2 = edgesGC qFrom qTo gc2 b
