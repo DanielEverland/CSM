@@ -5,13 +5,37 @@ We have used a .bat file to easily build and run the project. It requires a path
 fsi.exe "%~dp0\Task1.fsx"
 PAUSE
 
-The input expects a valid GCL program and will output a "pretty" parsed version of it. Here's an example:
-Enter an input program: y:=1; do x>0 -> y:=x*y; x:=x-1 od
-Result:
-y := 1 ;
-do x > 0 -> y := x * y ;
-x := x - 1
-od
+The input expects a valid GCL program and will output a string that can be interpreted by graphviz. Here's an example:
+Enter an input program: if x>=y -> z:=x [] y>x -> z:=y [] y<x -> z:=y [] y!=x -> z:=y fi
+digraph program_graph {rankdir=LR;
+node [shape = circle]; qS;
+node [shape = doublecircle]; qE;
+node [shape = circle]
+qS -> q1 [label = "x>=y"];
+q1 -> qE [label = "z:=x"];
+qS -> q2 [label = "y>x"];
+q2 -> qE [label = "z:=y"];
+qS -> q3 [label = "y<x"];
+q3 -> qE [label = "z:=y"];
+qS -> q4 [label = "y<>x"];
+q4 -> qE [label = "z:=y"];
+}
+
+Determinism can be enabled by changing Task1.fsx line 19 to `let determinism = true`, in which case the above program's output will be:
+Enter an input program: if x>=y -> z:=x [] y>x -> z:=y [] y<x -> z:=y [] y!=x -> z:=y fi
+digraph program_graph {rankdir=LR;
+node [shape = circle]; qS;
+node [shape = doublecircle]; qE;
+node [shape = circle]
+qS -> q1 [label = "x>=y&!false"];
+q1 -> qE [label = "z:=x"];
+qS -> q2 [label = "y>x&!false&!(x>=y)"];
+q2 -> qE [label = "z:=y"];
+qS -> q3 [label = "y<x&!false&!(x>=y)&!(y>x)"];
+q3 -> qE [label = "z:=y"];
+qS -> q4 [label = "y<>x&!(y<x)&!false&!(x>=y)&!(y>x)"];
+q4 -> qE [label = "z:=y"];
+}
 
 If the program couldn't be parsed, an error message will be displayed, and the program will terminate:
 Enter an input program: df
