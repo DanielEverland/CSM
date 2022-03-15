@@ -12,8 +12,6 @@ open Task1Parser
 #load "Task1Lexer.fs"
 open Task1Lexer
 
-let printEdge qFrom qTo label = qFrom + " -> " + qTo + " [label = \"" + label + "\"];\n"
-
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
 let rec aeval e =
@@ -58,6 +56,25 @@ and ceval e =
     | AssignArray(x, y, z)  -> "" + x + "[" + aeval(y) + "]" + ":=" + aeval(z)
     | Skip                  -> " skip "
 
+type Node = | Start
+            | End
+            | Inter of int
+            with override this.ToString() =
+                    match this with
+                    | Start   -> "qS"
+                    | End     -> "qE"
+                    | Inter x -> "q" + string x
+
+let printEdge qFrom label qTo = qFrom.ToString() + " -> " + qTo.ToString() + " [label = \"" + label + "\"];"
+ 
+let mutable n = 1
+
+let getFresh q = match q with
+                    | Start     -> Inter n
+                    | Inter _   -> n <- n + 1
+                                   Inter (n)
+                    | End       -> failwith "qFrom can't be End"
+
 let doneGC = function
     | BooleanGuard(x,_)     -> "!(" + beval(x) + ")"
     | GCommands(x,y)        -> "(" + gceval(x) + ")&(" + gceval(y) + ")"
@@ -67,7 +84,7 @@ let rec edgesC qFrom qTo C =
     | AssignExpr(x,y)       -> [(qFrom, x + ":=" + aeval y, qTo)]
     | AssignArray(x,y,z)    -> [(qFrom, x + "[" + aeval y + "]:=" + aeval z, qTo)]
     | Skip                  -> [(qFrom, "skip", qTo)]
-    | Commands(C1,C2)       -> let q = "qX"
+    | Commands(C1,C2)       -> let q = getFresh qFrom
                                let E1 = edgesC qFrom q C1
                                let E2 = edgesC q qTo C2
                                E1 @ E2
@@ -78,11 +95,11 @@ let rec edgesC qFrom qTo C =
 
 and edgesGC qFrom qTo GC =
     match GC with
-    | BooleanGuard(b, C)    -> let q = "qX"
+    | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C
                                [(qFrom, beval b, q)] @ E
-    | GCommands(GC1, GC2)   -> let E1 = edgesGC qFrom qTo GC1
-                               let E2 = edgesGC qFrom qTo GC2
+    | GCommands(gc1, gc2)   -> let E1 = edgesGC qFrom qTo gc1
+                               let E2 = edgesGC qFrom qTo gc2
                                E1 @ E2
 
 
@@ -94,6 +111,11 @@ let parse input =
     // return the result of parsing (i.e. value of type "expr")
     res
 
+let rec printEdges = function
+    | (qFrom, label, qTo)::[]   -> printEdge qFrom label qTo
+    | (qFrom, label, qTo)::xs   -> printEdge qFrom label qTo + "\n" + printEdges xs
+    | _                         -> ""
+
 // We implement here the function that interacts with the user
 let compute =
     printf "Enter an input program: "
@@ -101,8 +123,15 @@ let compute =
     // We parse the input string
     try
     let c = parse (Console.ReadLine())       
-    let edges = edgesC "q>" "q<" c
-    printfn "List of edges: %A" edges
+    let edges = edgesC Start End c
+    // printfn "List of edges: %A" edges
+
+    printfn "digraph program_graph {rankdir=LR;"
+    printfn "node [shape = circle]; qS;"
+    printfn "node [shape = doublecircle]; qE;"
+    printfn "node [shape = circle]"
+    printfn "%s" (printEdges edges)
+    printfn "}"
 
     // and print the result of evaluating it        
     //printfn "Result: \n%s" (ceval c 0)
