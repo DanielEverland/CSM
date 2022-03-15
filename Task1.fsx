@@ -12,6 +12,13 @@ open Task1Parser
 #load "Task1Lexer.fs"
 open Task1Lexer
 
+// ======================
+// ======= CONFIG =======
+// ======================
+// Toggles whether a deterministic program graph is created
+let determinism = true
+
+
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
 let rec aeval e =
@@ -97,23 +104,23 @@ and edgesGC qFrom qTo GC b =
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C
                                [(qFrom, beval b, q)] @ E
-    | GCommands(gc1, gc2)   -> match (gc1, gc2) with
-                                  | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                          let E2 = edgesGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(b1)))
-                                                                                          E1 @ E2
-                                  | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = edgesGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(b1)))
-                                                                                          let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                          E1 @ E2
-                                  | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                          let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(b1, Neg(b)))), c1)) (And(b, Neg(b1)))
-                                                                                          E1 @ E2
-                                  | _ ->  let E1 = edgesGC qFrom qTo gc1 b
-                                          let E2 = edgesGC qFrom qTo gc2 b
-                                          E1 @ E2
-
-    
-                              
-
+    | GCommands(gc1, gc2)   -> match determinism with
+                                | false ->  let E1 = edgesGC qFrom qTo gc1 b
+                                            let E2 = edgesGC qFrom qTo gc2 b
+                                            E1 @ E2
+                                | _     ->  match (gc1, gc2) with
+                                            | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
+                                                                                                    let E2 = edgesGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(ParBExpr(b1))))
+                                                                                                    E1 @ E2
+                                            | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = edgesGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(ParBExpr(b1))))
+                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
+                                                                                                    E1 @ E2
+                                            | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
+                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c1)) (And(b, Neg(ParBExpr(b1))))
+                                                                                                    E1 @ E2
+                                            | _ ->  let E1 = edgesGC qFrom qTo gc1 b
+                                                    let E2 = edgesGC qFrom qTo gc2 b
+                                                    E1 @ E2
 
 let parse input =
     // translate string into a buffer of characters
@@ -133,7 +140,7 @@ let compute =
     printf "Enter an input program: "
 
     // We parse the input string
-    //try
+    try
     let c = parse (Console.ReadLine())       
     let edges = edgesC Start End c
     // printfn "List of edges: %A" edges
@@ -148,7 +155,7 @@ let compute =
     // and print the result of evaluating it        
     //printfn "Result: \n%s" (ceval c 0)
 
-    // with err -> printf "Couldn't parse program"
+    with err -> printf "Couldn't parse program"
 
 // Start interacting with the user
 compute
