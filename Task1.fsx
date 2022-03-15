@@ -31,17 +31,17 @@ and beval e =
   match e with
     | True                  -> "true"
     | False                 -> "false"
-    | And(x, y)             -> "" + beval(x) + "&" + beval(y)
-    | Or(x, y)              -> "" + beval(x) + "|" + beval(y)
-    | SAnd(x, y)            -> "" + beval(x) + "&&" + beval(y)
-    | SOr(x, y)             -> "" + beval(x) + "||" + beval(y)
+    | And(x, y)             -> "(" + beval(x) + "&" + beval(y) + ")"
+    | Or(x, y)              -> "(" + beval(x) + "|" + beval(y) + ")"
+    | SAnd(x, y)            -> "(" + beval(x) + "&&" + beval(y) + ")"
+    | SOr(x, y)             -> "(" + beval(x) + "||" + beval(y) + ")"
     | Neg(x)                -> "" + "!" + (beval(x))
     | Equal(x, y)           -> "" + aeval(x) + "=" + aeval(y)
-    | NEqual(x, y)          -> "" + aeval(x) + "<>" + aeval(y)
-    | Greater(x, y)         -> "" + aeval(x) + ">" + aeval(y)
-    | GreaterEqual(x, y)    -> "" + aeval(x) + ">=" + aeval(y)
-    | Less(x, y)            -> "" + aeval(x) + "<" + aeval(y)
-    | LessEqual(x, y)       -> "" + aeval(x) + "<=" + aeval(y)
+    | NEqual(x, y)          -> "(" + aeval(x) + "<>" + aeval(y) + ")"
+    | Greater(x, y)         -> "(" + aeval(x) + ">" + aeval(y) + ")"
+    | GreaterEqual(x, y)    -> "(" + aeval(x) + ">=" + aeval(y) + ")"
+    | Less(x, y)            -> "(" + aeval(x) + "<" + aeval(y) + ")"
+    | LessEqual(x, y)       -> "(" + aeval(x) + "<=" + aeval(y) + ")"
     | ParBExpr(x)           -> "" + "(" + beval(x) + ")"
 and gceval e =
   match e with
@@ -88,19 +88,32 @@ let rec edgesC qFrom qTo C =
                                let E1 = edgesC qFrom q C1
                                let E2 = edgesC q qTo C2
                                E1 @ E2
-    | IfStatement(GC)       -> edgesGC qFrom qTo GC
+    | IfStatement(GC)       -> edgesGC qFrom qTo GC False
     | DoStatement(GC)       -> let b = doneGC GC
-                               let E = edgesGC qFrom qFrom GC
+                               let E = edgesGC qFrom qFrom GC False
                                E @ [(qFrom, b, qTo)]
 
-and edgesGC qFrom qTo GC =
+and edgesGC qFrom qTo GC b =
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C
                                [(qFrom, beval b, q)] @ E
-    | GCommands(gc1, gc2)   -> let E1 = edgesGC qFrom qTo gc1
-                               let E2 = edgesGC qFrom qTo gc2
-                               E1 @ E2
+    | GCommands(gc1, gc2)   -> match (gc1, gc2) with
+                                  | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
+                                                                                          let E2 = edgesGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(b1)))
+                                                                                          E1 @ E2
+                                  | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = edgesGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(b1)))
+                                                                                          let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
+                                                                                          E1 @ E2
+                                  | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
+                                                                                          let E2 = edgesGC qFrom qTo (BooleanGuard(And(And(b2, Neg(b1)), b), c1)) (And(b, Neg(b1)))
+                                                                                          E1 @ E2
+                                  | _ ->  let E1 = edgesGC qFrom qTo gc1 b
+                                          let E2 = edgesGC qFrom qTo gc2 b
+                                          E1 @ E2
+
+    
+                              
 
 
 let parse input =
@@ -121,7 +134,7 @@ let compute =
     printf "Enter an input program: "
 
     // We parse the input string
-    try
+    //try
     let c = parse (Console.ReadLine())       
     let edges = edgesC Start End c
     // printfn "List of edges: %A" edges
@@ -136,7 +149,7 @@ let compute =
     // and print the result of evaluating it        
     //printfn "Result: \n%s" (ceval c 0)
 
-    with err -> printf "Couldn't parse program"
+    // with err -> printf "Couldn't parse program"
 
 // Start interacting with the user
 compute
