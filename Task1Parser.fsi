@@ -35,7 +35,7 @@ type token =
   | ARROW
   | DOUBLEBRACKETS
   | VAR of (string)
-  | NUM of (float)
+  | NUM of (int)
 type tokenId = 
     | TOKEN_SKIP
     | TOKEN_LBRA

@@ -33,7 +33,7 @@ rule tokenize = parse
 | "do"          { DOSTART }
 | "od"          { DOEND }
 | var           { VAR(LexBuffer<_>.LexemeString lexbuf) }
-| num           { NUM(Double.Parse(LexBuffer<_>.LexemeString lexbuf)) }
+| num           { NUM(Int32.Parse(LexBuffer<_>.LexemeString lexbuf)) }
 | "[]"          { DOUBLEBRACKETS }
 | '['			{ LBRA }
 | ']'			{ RBRA }

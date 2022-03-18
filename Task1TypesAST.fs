@@ -3,7 +3,7 @@
 module Task1TypesAST
 
 type aexpr =
-  | Num of float
+  | Num of int
   | Var of string
   | Array of (string * aexpr)
   | TimesExpr of (aexpr * aexpr)

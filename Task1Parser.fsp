@@ -4,7 +4,7 @@ open Task1TypesAST
 %}
 
 // Declare the tokens (terminal symbols)
-%token <float> NUM
+%token <int> NUM
 %token <string> VAR
 %token ARROW DOUBLEBRACKETS
 %token VARIABLE ASSIGN SEMICOLON IFSTART IFEND DOSTART DOEND 

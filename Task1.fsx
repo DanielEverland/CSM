@@ -20,7 +20,7 @@ let determinism = true
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
-let rec aeval e (var : Map<string, float>, arr : Map<string, float []>) : float =
+let rec aeval e (var : Map<string, int>, arr : Map<string, int[]>) : int =
   match e with
     | Num(x)                -> x
     | Var(x)                ->  match Map.tryFind x var with
@@ -35,11 +35,11 @@ let rec aeval e (var : Map<string, float>, arr : Map<string, float []>) : float 
     | DivExpr(x,y)          -> int(aeval x (var, arr) / aeval y (var, arr))
     | PlusExpr(x,y)         -> aeval x (var, arr) + aeval y (var, arr)
     | MinusExpr(x,y)        -> aeval x (var, arr) - aeval y (var, arr)
-    | PowExpr(x,y)          -> aeval x (var, arr) ** aeval y (var, arr)
+    | PowExpr(x,y)          -> int(float(aeval x (var, arr)) ** float(aeval y (var, arr)))
     | UPlusExpr(x)          -> aeval x (var, arr)
     | UMinusExpr(x)         -> -aeval x (var, arr)
     | ParAExpr(x)           -> aeval x (var, arr)
-and beval e (var : Map<string, float>, arr : Map<string, float []>) =
+and beval e (var : Map<string, int>, arr : Map<string, int[]>) =
   match e with
     | True                  -> true
     | False                 -> false
@@ -66,7 +66,7 @@ and gceval e (var, arr) =
                                else (var, arr)
     | GCommands(x, y)       -> let (var1, arr1) = gceval x (var, arr)
                                gceval y (var1, arr1)
-and ceval e (var : Map<string, float>, arr : Map<string, float []>) : Map<string, float> * Map<string, float []> =
+and ceval e (var : Map<string, int>, arr : Map<string, int[]>) : Map<string, int> * Map<string, int[]> =
   match e with
     | Commands(x, y)        -> let (var1, arr1) = ceval x (var, arr)
                                ceval y (var1, arr1)

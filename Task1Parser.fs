@@ -3,11 +3,11 @@ module Task1Parser
 #nowarn "64";; // turn off warnings that type variables used in production annotations are instantiated to concrete type
 open FSharp.Text.Lexing
 open FSharp.Text.Parsing.ParseHelpers
-# 2 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 2 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
 
 open Task1TypesAST
 
-# 10 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 10 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
 // This type is the type of tokens accepted by the parser
 type token = 
   | SKIP
@@ -44,7 +44,7 @@ type token =
   | ARROW
   | DOUBLEBRACKETS
   | VAR of (string)
-  | NUM of (float)
+  | NUM of (int)
 // This type is used to give symbolic names to token indexes, useful for error messages
 type tokenId = 
     | TOKEN_SKIP
@@ -305,7 +305,7 @@ let _fsyacc_reductionSymbolCounts = [|1us; 2us; 3us; 3us; 3us; 6us; 1us; 3us; 3u
 let _fsyacc_productionToNonTerminalTable = [|0us; 1us; 2us; 2us; 3us; 3us; 3us; 3us; 3us; 3us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 4us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; 5us; |]
 let _fsyacc_immediateActions = [|65535us; 49152us; 65535us; 16385us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16390us; 65535us; 65535us; 65535us; 16392us; 65535us; 16393us; 16394us; 16395us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16407us; 16408us; 65535us; 65535us; 65535us; 16410us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 65535us; 16418us; |]
 let _fsyacc_reductions ()  =    [| 
-# 308 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 308 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
@@ -314,54 +314,54 @@ let _fsyacc_reductions ()  =    [|
                       raise (FSharp.Text.Parsing.Accept(Microsoft.FSharp.Core.Operators.box _1))
                    )
                  : '_startstart));
-# 317 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 317 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 57 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 57 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                       _1 
                    )
-# 57 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 57 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 328 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 328 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 68 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 68 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                       BooleanGuard(_1,_3) 
                    )
-# 68 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 68 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : gcommand));
-# 340 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 340 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 69 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 69 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                   GCommands(_1,_3) 
                    )
-# 69 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 69 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : gcommand));
-# 352 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 352 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 72 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 72 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                         AssignExpr(_1,_3) 
                    )
-# 72 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 72 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 364 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 364 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
@@ -369,346 +369,346 @@ let _fsyacc_reductions ()  =    [|
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 73 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 73 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                                         AssignArray(_1, _3, _6) 
                    )
-# 73 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 73 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 377 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 377 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 74 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 74 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                           Skip 
                    )
-# 74 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 74 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 387 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 387 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : command)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 75 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 75 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                           Commands(_1,_3) 
                    )
-# 75 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 75 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 399 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 399 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 76 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 76 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                    IfStatement(_2) 
                    )
-# 76 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 76 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 410 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 410 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : gcommand)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 77 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 77 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                    DoStatement(_2) 
                    )
-# 77 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 77 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : command));
-# 421 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 421 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 80 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 80 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                       True 
                    )
-# 80 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 80 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 431 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 431 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 81 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 81 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                        False 
                    )
-# 81 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 81 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 441 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 441 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 82 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 82 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                         And(_1,_3) 
                    )
-# 82 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 82 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 453 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 453 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 83 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 83 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                        Or(_1,_3) 
                    )
-# 83 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 83 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 465 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 465 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 84 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 84 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                         SAnd(_1,_3) 
                    )
-# 84 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 84 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 477 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 477 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 85 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 85 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                         SOr(_1,_3) 
                    )
-# 85 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 85 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 489 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 489 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 86 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 86 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                Neg(_2) 
                    )
-# 86 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 86 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 500 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 500 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 87 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 87 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            Equal(_1,_3) 
                    )
-# 87 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 87 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 512 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 512 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 88 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 88 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            NEqual(_1,_3) 
                    )
-# 88 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 88 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 524 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 524 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 89 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 89 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            Greater(_1,_3) 
                    )
-# 89 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 89 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 536 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 536 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 90 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 90 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            GreaterEqual(_1,_3) 
                    )
-# 90 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 90 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 548 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 548 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 91 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 91 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            Less(_1,_3) 
                    )
-# 91 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 91 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 560 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 560 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 92 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 92 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            LessEqual(_1,_3) 
                    )
-# 92 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 92 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 572 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 572 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : bexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 93 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 93 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                    ParBExpr(_2) 
                    )
-# 93 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 93 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : bexpr));
-# 583 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 583 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
-            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : float)) in
+            let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : int)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 96 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 96 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                       Num(_1) 
                    )
-# 96 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 96 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 594 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 594 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 97 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 97 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                       Var(_1) 
                    )
-# 97 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 97 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 605 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 605 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : string)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 98 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 98 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                       Array(_1, _3) 
                    )
-# 98 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 98 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 617 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 617 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 99 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 99 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            PlusExpr(_1,_3) 
                    )
-# 99 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 99 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 629 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 629 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 100 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 100 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            MinusExpr(_1,_3) 
                    )
-# 100 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 100 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 641 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 641 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 101 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 101 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            TimesExpr(_1,_3) 
                    )
-# 101 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 101 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 653 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 653 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 102 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 102 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            DivExpr(_1,_3) 
                    )
-# 102 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 102 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 665 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 665 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _1 = (let data = parseState.GetInput(1) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             let _3 = (let data = parseState.GetInput(3) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 103 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 103 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                            PowExpr(_1,_3) 
                    )
-# 103 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 103 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 677 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 677 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 104 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 104 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                UPlusExpr(_2) 
                    )
-# 104 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 104 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 688 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 688 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 105 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 105 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                 UMinusExpr(_2) 
                    )
-# 105 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 105 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
-# 699 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 699 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
         (fun (parseState : FSharp.Text.Parsing.IParseState) ->
             let _2 = (let data = parseState.GetInput(2) in (Microsoft.FSharp.Core.Operators.unbox data : aexpr)) in
             Microsoft.FSharp.Core.Operators.box
                 (
                    (
-# 106 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 106 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                                                    ParAExpr(_2) 
                    )
-# 106 "C:\Users\Meee\Documents\GitHub\CSM\\Task1Parser.fsp"
+# 106 "C:\Users\Daniel\Source\CSMAssignment\CSM\\Task1Parser.fsp"
                  : aexpr));
 |]
-# 711 "C:\Users\Meee\Documents\GitHub\CSM\Task1Parser.fs"
+# 711 "C:\Users\Daniel\Source\CSMAssignment\CSM\Task1Parser.fs"
 let tables () : FSharp.Text.Parsing.Tables<_> = 
   { reductions= _fsyacc_reductions ();
     endOfInputTag = _fsyacc_endOfInputTag;
