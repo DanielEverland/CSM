@@ -18,9 +18,40 @@ open Task1Lexer
 // Toggles whether a deterministic program graph is created
 let determinism = true
 
+type Node = | Start
+            | End
+            | Inter of int
+            with override this.ToString() =
+                    match this with
+                    | Start   -> "qS"
+                    | End     -> "qE"
+                    | Inter x -> "q" + string x
+
+type VariableData = Map<string, int>
+type ArrayData = Map<string, int[]>
+// The data we can modify during runtime
+type RuntimeData = (VariableData * ArrayData)
+
+// Lambdas that take the current runtime data, modify it and return new runtime data
+type CompiledAction = RuntimeData -> RuntimeData
+
+// An edge consists of an action and target node
+type Edge = CompiledAction * Node
+
+// A lookup table that determines the edges of all nodes
+type Program = Map<Node, Edge list>
+
+let getEdges qFrom T =
+    match Map.tryFind qFrom T with
+    | Some e -> e
+    | None -> []
+
+let merge (mapA : Program) (mapB : Program) = Map.fold (fun acc key value -> let edges = getEdges key acc
+                                                                             Map.add key (value@edges) acc) mapA mapB
+
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
-let rec aeval e (var : Map<string, int>, arr : Map<string, int[]>) : int =
+let rec aeval e ((var, arr) : RuntimeData) : int =
   match e with
     | Num(x)                -> x
     | Var(x)                ->  match Map.tryFind x var with
@@ -39,7 +70,7 @@ let rec aeval e (var : Map<string, int>, arr : Map<string, int[]>) : int =
     | UPlusExpr(x)          -> aeval x (var, arr)
     | UMinusExpr(x)         -> -aeval x (var, arr)
     | ParAExpr(x)           -> aeval x (var, arr)
-and beval e (var : Map<string, int>, arr : Map<string, int[]>) =
+and beval e ((var, arr) : RuntimeData) : bool =
   match e with
     | True                  -> true
     | False                 -> false
@@ -59,14 +90,14 @@ and beval e (var : Map<string, int>, arr : Map<string, int[]>) =
     | Less(x, y)            -> aeval x (var, arr) < aeval y (var, arr)
     | LessEqual(x, y)       -> aeval x (var, arr) <= aeval y (var, arr)
     | ParBExpr(x)           -> beval x (var, arr)
-and gceval e (var, arr) =
+and gceval e ((var, arr) : RuntimeData) : RuntimeData =
   match e with
     | BooleanGuard(x, y)    -> if beval x (var, arr)
                                then ceval y (var, arr)
                                else (var, arr)
     | GCommands(x, y)       -> let (var1, arr1) = gceval x (var, arr)
                                gceval y (var1, arr1)
-and ceval e (var : Map<string, int>, arr : Map<string, int[]>) : Map<string, int> * Map<string, int[]> =
+and ceval e ((var, arr) : RuntimeData) : RuntimeData =
   match e with
     | Commands(x, y)        -> let (var1, arr1) = ceval x (var, arr)
                                ceval y (var1, arr1)
@@ -78,66 +109,53 @@ and ceval e (var : Map<string, int>, arr : Map<string, int[]>) : Map<string, int
                                (var, arr.Add (x, arr1))
     | Skip                  -> (var, arr)
 
-type Node = | Start
-            | End
-            | Inter of int
-            with override this.ToString() =
-                    match this with
-                    | Start   -> "qS"
-                    | End     -> "qE"
-                    | Inter x -> "q" + string x
-
 let printEdge qFrom label qTo = qFrom.ToString() + " -> " + qTo.ToString() + " [label = \"" + label + "\"];"
 
 let mutable n = 0
-
-(*
 let getFresh q = match q with
                  | Start|Inter _ -> n <- n + 1
                                     Inter n
                  | End           -> failwith "qFrom can't be end node"
 
-let doneGC = function
-    | BooleanGuard(x,_)     -> "!(" + beval(x) + ")"
-    | GCommands(x,y)        -> "(" + gceval(x) + ")&(" + gceval(y) + ")"
+//let doneGC = function
+//    | BooleanGuard(x,_)     -> "!(" + beval(x) + ")"
+//    | GCommands(x,y)        -> "(" + gceval(x) + ")&(" + gceval(y) + ")"
 
-let rec edgesC qFrom qTo C =
+let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program =
     match C with
-    | AssignExpr(x,y)       -> [(qFrom, x + ":=" + aeval y, qTo)]
-    | AssignArray(x,y,z)    -> [(qFrom, x + "[" + aeval y + "]:=" + aeval z, qTo)]
-    | Skip                  -> [(qFrom, "skip", qTo)]
+    | AssignExpr(x,y)       -> Map.add qFrom (((fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), qTo)::(getEdges qFrom T)) T
+    | AssignArray(x,y,z)    -> Map.add qFrom (((fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), qTo)::(getEdges qFrom T)) T
+    | Skip                  -> T
     | Commands(C1,C2)       -> let q = getFresh qFrom
-                               let E1 = edgesC qFrom q C1
-                               let E2 = edgesC q qTo C2
-                               E1 @ E2
-    | IfStatement(GC)       -> edgesGC qFrom qTo GC False
-    | DoStatement(GC)       -> let b = doneGC GC
-                               let E = edgesGC qFrom qFrom GC False
-                               E @ [(qFrom, b, qTo)]
-
-and edgesGC qFrom qTo GC b =
+                               let E1 = edgesC qFrom q C1 T
+                               let E2 = edgesC q qTo C2 T
+                               merge E1 E2
+    | IfStatement(GC)       -> edgesGC qFrom qTo GC False T
+    | DoStatement(GC)       -> let E1 = edgesGC qFrom qFrom GC False T
+                               let E2 = Map.add qFrom (((fun runtimeData -> ceval (DoStatement(GC)) runtimeData), qTo)::(getEdges qFrom T)) T
+                               merge E1 E2
+and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program) : Program =
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
-                               let E = edgesC q qTo C
-                               [(qFrom, beval b, q)] @ E
+                               let E = edgesC q qTo C T
+                               Map.add qFrom (((fun runtimeData -> gceval (BooleanGuard(b, C)) runtimeData), q)::(getEdges qFrom T)) E
     | GCommands(gc1, gc2)   -> match determinism with
-                                | false ->  let E1 = edgesGC qFrom qTo gc1 b
-                                            let E2 = edgesGC qFrom qTo gc2 b
-                                            E1 @ E2
+                                | false ->  let E1 = edgesGC qFrom qTo gc1 b T
+                                            let E2 = edgesGC qFrom qTo gc2 b T
+                                            merge E1 E2
                                 | _     ->  match (gc1, gc2) with
-                                            | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                                    let E2 = edgesGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(ParBExpr(b1))))
-                                                                                                    E1 @ E2
-                                            | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = edgesGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(ParBExpr(b1))))
-                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                                    E1 @ E2
-                                            | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b
-                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c1)) (And(b, Neg(ParBExpr(b1))))
-                                                                                                    E1 @ E2
-                                            | _ ->  let E1 = edgesGC qFrom qTo gc1 b
-                                                    let E2 = edgesGC qFrom qTo gc2 b
-                                                    E1 @ E2
-*)
+                                            | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
+                                                                                                    let E2 = edgesGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    merge E1 E2
+                                            | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = edgesGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
+                                                                                                    merge E1 E2
+                                            | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
+                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c1)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    merge E1 E2
+                                            | _ ->  let E1 = edgesGC qFrom qTo gc1 b T
+                                                    let E2 = edgesGC qFrom qTo gc2 b T
+                                                    merge E1 E2
 
 let parse input =
     // translate string into a buffer of characters
@@ -152,6 +170,8 @@ let rec printEdges = function
     | (qFrom, label, qTo)::xs   -> printEdge qFrom label qTo + "\n" + printEdges xs
     | _                         -> ""
 
+let getProgramGraphString program = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
+
 // We implement here the function that interacts with the user
 let compute =
     printf "Enter an input program: "
@@ -159,10 +179,10 @@ let compute =
     // We parse the input string
     // try
     let c = parse (Console.ReadLine())
-    let (var, arr) = ceval c (Map.empty, Map.empty)
+    let program = edgesC Start End c Map.empty
+    //let (var, arr) = ceval c (Map.empty, Map.empty)
 
-    let s = Map.fold (fun state n s -> state + string n + " " + string s + "\n") "" var
-    printfn "%s" s
+    printfn "%s" (getProgramGraphString program)
 
     // printfn "Map of variables: %M" var
 
