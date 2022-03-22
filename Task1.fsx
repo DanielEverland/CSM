@@ -35,11 +35,15 @@ type RuntimeData = (VariableData * ArrayData)
 // Lambdas that take the current runtime data, modify it and return new runtime data
 type CompiledAction = RuntimeData -> RuntimeData
 
+type EdgeViability = RuntimeData -> bexpr
+
 // An edge consists of an action and target node
-type Edge = CompiledAction * Node
+type Edge = CompiledAction * EdgeViability * Node
 
 // A lookup table that determines the edges of all nodes
 type Program = Map<Node, Edge list>
+
+type ProgramState = (Node * RuntimeData * Program)
 
 let getEdges qFrom T =
     match Map.tryFind qFrom T with
@@ -56,11 +60,11 @@ let rec aeval e ((var, arr) : RuntimeData) : int =
     | Num(x)                -> x
     | Var(x)                ->  match Map.tryFind x var with
                                 | Some value -> value
-                                | None -> 0
+                                | None -> failwith ("No data has been assigned to " + (x.ToString()))
                                             // failwith (sprintf "No variable with name %s exists." x)
     | Array(x,y)            ->  match Array.tryFindIndex (fun elm -> elm = aeval y (var, arr)) (Map.find x arr) with
                                 | Some value -> value
-                                | None -> 0
+                                | None -> failwith ("No data has been assigned to " + (x.ToString()))
                                             // failwith (sprintf "Index %f not found." (aeval y (var, arr)))
     | TimesExpr(x,y)        -> aeval x (var, arr) * aeval y (var, arr)
     | DivExpr(x,y)          -> int(aeval x (var, arr) / aeval y (var, arr))
@@ -103,7 +107,8 @@ and ceval e ((var, arr) : RuntimeData) : RuntimeData =
                                ceval y (var1, arr1)
     | IfStatement(x)        -> gceval x (var, arr)
     | DoStatement(x)        -> gceval x (var, arr)
-    | AssignExpr(x, y)      -> (var.Add (x, aeval y (var, arr)), arr)
+    | AssignExpr(x, y)      ->  printf "%s -> %d\n" x (aeval y (var, arr))
+                                (var.Add (x, aeval y (var, arr)), arr)
     | AssignArray(x, y, z)  -> let arr1 = Map.find x arr
                                arr1.[int(aeval y (var, arr))] <- aeval z (var, arr)
                                (var, arr.Add (x, arr1))
@@ -117,14 +122,14 @@ let getFresh q = match q with
                                     Inter n
                  | End           -> failwith "qFrom can't be end node"
 
-//let doneGC = function
-//    | BooleanGuard(x,_)     -> "!(" + beval(x) + ")"
-//    | GCommands(x,y)        -> "(" + gceval(x) + ")&(" + gceval(y) + ")"
+let rec doneGC = function
+    | BooleanGuard(x,_)     -> Neg(x)
+    | GCommands(x,y)        -> Or((doneGC x), (doneGC y))
 
 let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program =
     match C with
-    | AssignExpr(x,y)       -> Map.add qFrom (((fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), qTo)::(getEdges qFrom T)) T
-    | AssignArray(x,y,z)    -> Map.add qFrom (((fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), qTo)::(getEdges qFrom T)) T
+    | AssignExpr(x,y)       -> Map.add qFrom (((fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignArray(x,y,z)    -> Map.add qFrom (((fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
     | Skip                  -> T
     | Commands(C1,C2)       -> let q = getFresh qFrom
                                let E1 = edgesC qFrom q C1 T
@@ -132,13 +137,13 @@ let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program
                                merge E1 E2
     | IfStatement(GC)       -> edgesGC qFrom qTo GC False T
     | DoStatement(GC)       -> let E1 = edgesGC qFrom qFrom GC False T
-                               let E2 = Map.add qFrom (((fun runtimeData -> ceval (DoStatement(GC)) runtimeData), qTo)::(getEdges qFrom T)) T
+                               let E2 = Map.add qFrom (((fun runtimeData -> ceval (DoStatement(GC)) runtimeData), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
                                merge E1 E2
 and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program) : Program =
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C T
-                               Map.add qFrom (((fun runtimeData -> gceval (BooleanGuard(b, C)) runtimeData), q)::(getEdges qFrom T)) E
+                               Map.add qFrom (((fun runtimeData -> runtimeData), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
     | GCommands(gc1, gc2)   -> match determinism with
                                 | false ->  let E1 = edgesGC qFrom qTo gc1 b T
                                             let E2 = edgesGC qFrom qTo gc2 b T
@@ -170,19 +175,44 @@ let rec printEdges = function
     | (qFrom, label, qTo)::xs   -> printEdge qFrom label qTo + "\n" + printEdges xs
     | _                         -> ""
 
-let getProgramGraphString program = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
+let getProgramGraphString (program:Program) = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, _, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
 
+let getMemoryString ((varData, arrData):RuntimeData) =
+    let varStr varData = Map.fold (fun acc name value -> acc + name + ": " + value.ToString() + "\n") "" varData
+    let arrStr arrData = Map.fold (fun acc name arr -> acc + name + ": { " + (List.fold (fun acc v -> acc + v.ToString() + ", ") "" (List.ofArray arr)) + " }\n") "" arrData
+    (varStr varData) + (arrStr arrData)
+
+let rec getViableEdge (edges : Edge list) (memory : RuntimeData) : Option<Edge> =
+    match edges with
+    | (action, viability, toNode)::xs -> if beval (viability memory) memory then (Some (action, viability, toNode)) else (getViableEdge xs memory)
+    | [] -> None
+
+let rec interpret ((current, memory, program):ProgramState) : ProgramState =
+    match current with
+    | End -> (current, memory, program)
+    | _ ->  printf "%s\n" (current.ToString())
+            let edges = Map.find current program
+            match (getViableEdge edges memory) with
+            | Some (action, viability, toNode) -> (interpret (toNode, (action memory), program))
+            | None -> failwith ("Could not determine viable edge of node " + (current.ToString()))
+     
 // We implement here the function that interacts with the user
 let compute =
-    printf "Enter an input program: "
+    //printf "Enter an input program: "
 
     // We parse the input string
     // try
-    let c = parse (Console.ReadLine())
+    //let c = parse (Console.ReadLine())
+    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
     let program = edgesC Start End c Map.empty
     //let (var, arr) = ceval c (Map.empty, Map.empty)
-
-    printfn "%s" (getProgramGraphString program)
+    //printfn "%s" (getProgramGraphString program)
+    let startVariableData = Map.ofList [("x", 4)]
+    let finalData = interpret (Start, (startVariableData, Map.empty), program)
+    printf "Success! Memory:\n"
+    let (_, memory, _) = finalData
+    printfn "%s" (getMemoryString memory)
+    
 
     // printfn "Map of variables: %M" var
 
