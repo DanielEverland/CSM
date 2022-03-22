@@ -195,11 +195,27 @@ let rec interpret ((current, memory, program):ProgramState) : ProgramState =
             match (getViableEdge edges memory) with
             | Some (action, viability, toNode) -> (interpret (toNode, (action memory), program))
             | None -> failwith ("Could not determine viable edge of node " + (current.ToString()))
+
+let rec getStartVariables (current:RuntimeData) : RuntimeData =
+    printf "Please enter start one variable data. Finish by typing \"quit\"\n"
+    let input = Console.ReadLine()
+    if input = "quit" then current else (parseInput current input)
+and parseInput current input : RuntimeData =
+    if ((input.Contains "[") && (input.Contains "]"))
+    then (parseArray current input)
+    else (parseVariable current input)
+and parseArray (varData, arrData) input : RuntimeData =
+    getStartVariables (varData, arrData)
+and parseVariable (varData, arrData) input : RuntimeData =
+    let operands = input.Split [|'='|]
+    if operands.Length = 2
+    then getStartVariables ((Map.add ((operands.[0]).Replace (" ", "")) (Int32.Parse ((operands.[1]).Replace (" ", ""))) varData), arrData)
+    else failwith "Couldn't parse variable because there are not 2 operands"
+        
      
 // We implement here the function that interacts with the user
 let compute =
     //printf "Enter an input program: "
-
     // We parse the input string
     // try
     //let c = parse (Console.ReadLine())
@@ -207,8 +223,9 @@ let compute =
     let program = edgesC Start End c Map.empty
     //let (var, arr) = ceval c (Map.empty, Map.empty)
     //printfn "%s" (getProgramGraphString program)
-    let startVariableData = Map.ofList [("x", 4)]
-    let finalData = interpret (Start, (startVariableData, Map.empty), program)
+    //let startVariableData = Map.ofList [("x", 4)]
+    let startVariableData = getStartVariables (Map.empty, Map.empty)
+    let finalData = interpret (Start, startVariableData, program)
     printf "Success! Memory:\n"
     let (_, memory, _) = finalData
     printfn "%s" (getMemoryString memory)
