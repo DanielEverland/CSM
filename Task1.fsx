@@ -156,7 +156,7 @@ and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program
                                                                                                     let E2 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
                                                                                                     merge E1 E2
                                             | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = edgesGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
-                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c1)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    let E2 = edgesGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c2)) (And(b, Neg(ParBExpr(b1)))) T
                                                                                                     merge E1 E2
                                             | _ ->  let E1 = edgesGC qFrom qTo gc1 b T
                                                     let E2 = edgesGC qFrom qTo gc2 b T
@@ -219,11 +219,16 @@ let compute =
     // We parse the input string
     // try
     //let c = parse (Console.ReadLine())
-    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
+
+    // Factorial of x
+    //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
+
+    // Maximum of x and y
+    let c = parse "if x>=y -> z:=x [] y>x -> z:=y fi"
     let program = edgesC Start End c Map.empty
     //let (var, arr) = ceval c (Map.empty, Map.empty)
     //printfn "%s" (getProgramGraphString program)
-    //let startVariableData = Map.ofList [("x", 4)]
+    let startVariableData = Map.ofList [("x", 4)]
     let startVariableData = getStartVariables (Map.empty, Map.empty)
     let finalData = interpret (Start, startVariableData, program)
     printf "Success! Memory:\n"
