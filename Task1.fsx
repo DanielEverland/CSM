@@ -178,7 +178,7 @@ let getProgramGraphString (program:Program) = Map.fold (fun state n edgeList -> 
 
 let getMemoryString ((varData, arrData):RuntimeData) =
     let varStr varData = Map.fold (fun acc name value -> acc + name + ": " + value.ToString() + "\n") "" varData
-    let arrStr arrData = Map.fold (fun acc name arr -> acc + name + ": { " + (List.fold (fun acc v -> acc + v.ToString() + ", ") "" (List.ofArray arr)) + " }\n") "" arrData
+    let arrStr arrData = Map.fold (fun acc name arr -> acc + name + ": { " + (List.fold (fun acc v -> acc + (if acc <> "" then ", " + v.ToString() else v.ToString())) "" (List.ofArray arr)) + " }\n") "" arrData
     (varStr varData) + (arrStr arrData)
 
 let rec getViableEdge (edges : Edge list) (memory : RuntimeData) : Option<Edge> =
