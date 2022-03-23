@@ -215,20 +215,20 @@ and parseVariable (varData, arrData) input : RuntimeData =
      
 // We implement here the function that interacts with the user
 let compute =
-    //printf "Enter an input program: "
+    printf "Enter an input program: "
     // We parse the input string
     // try
-    //let c = parse (Console.ReadLine())
+    let c = parse (Console.ReadLine())
 
     // Factorial of x
     //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
 
     // Maximum of x and y
-    let c = parse "if x>=y -> z:=x [] y>x -> z:=y fi"
+    //let c = parse "if x<0 -> y:=(-1*z)*z [] x=0 -> y:=0 [] x>0 -> y:=z*z fi"
     let program = edgesC Start End c Map.empty
     //let (var, arr) = ceval c (Map.empty, Map.empty)
     //printfn "%s" (getProgramGraphString program)
-    let startVariableData = Map.ofList [("x", 4)]
+    //let startVariableData = Map.ofList [("x", 5); ("y", 3); ("z", 5)]
     let startVariableData = getStartVariables (Map.empty, Map.empty)
     let finalData = interpret (Start, startVariableData, program)
     printf "Success! Memory:\n"
@@ -257,10 +257,3 @@ let compute =
 
 // Start interacting with the user
 compute
-
-let parseInitVars =
-    let [|initVar; initVal|] = Console.ReadLine().Trim([|'['; ']'; ' '|]).Split '='
-    let nums = Array.toList (initVal.Split ',')
-    match nums with
-    |num::[] -> Map.add initVar (int num) VariableData
-    |num::_ -> 
