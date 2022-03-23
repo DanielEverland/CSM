@@ -257,3 +257,10 @@ let compute =
 
 // Start interacting with the user
 compute
+
+let parseInitVars =
+    let [|initVar; initVal|] = Console.ReadLine().Trim([|'['; ']'; ' '|]).Split '='
+    let nums = Array.toList (initVal.Split ',')
+    match nums with
+    |num::[] -> Map.add initVar (int num) VariableData
+    |num::_ -> 
