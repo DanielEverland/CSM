@@ -17,6 +17,7 @@ open Task1Lexer
 // ======================
 // Toggles whether a deterministic program graph is created
 let determinism = true
+let debug = false
 
 type Node = | Start
             | End
@@ -105,7 +106,7 @@ and ceval e ((var, arr) : RuntimeData) : RuntimeData =
                                ceval y (var1, arr1)
     | IfStatement(x)        -> gceval x (var, arr)
     | DoStatement(x)        -> gceval x (var, arr)
-    | AssignExpr(x, y)      ->  printf "%s -> %d\n" x (aeval y (var, arr))
+    | AssignExpr(x, y)      ->  if debug then printf "%s -> %d\n" x (aeval y (var, arr))
                                 (var.Add (x, aeval y (var, arr)), arr)
     | AssignArray(x, y, z)  -> let arr1 = Map.find x arr
                                arr1.[int(aeval y (var, arr))] <- aeval z (var, arr)
@@ -188,14 +189,14 @@ let rec getViableEdge (edges : Edge list) (memory : RuntimeData) : Option<Edge> 
 let rec interpret ((current, memory, program):ProgramState) : ProgramState =
     match current with
     | End -> (current, memory, program)
-    | _ ->  printf "%s\n" (current.ToString())
+    | _ ->  if debug then printf "%s\n" (current.ToString())
             let edges = Map.find current program
             match (getViableEdge edges memory) with
             | Some (action, viability, toNode) -> (interpret (toNode, (action memory), program))
             | None -> failwith ("Could not determine viable edge of node " + (current.ToString()))
 
 let rec getStartVariables (current:RuntimeData) : RuntimeData =
-    printf "Please enter start one variable data. Finish by typing \"quit\"\n"
+    printf "Please enter one variable at a time. Finish by typing \"quit\"\n"
     let input = Console.ReadLine()
     if input = "quit" then current else (parseInput current input)
 and parseInput current input : RuntimeData =
@@ -221,44 +222,13 @@ and parseVariable (varData, arrData) input : RuntimeData =
 // We implement here the function that interacts with the user
 let compute =
     printf "Enter an input program: "
-    // We parse the input string
-    // try
     let c = parse (Console.ReadLine())
-
-    // Factorial of x
-    //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
-
-    // Maximum of x and y
-    //let c = parse "if x<0 -> y:=(-1*z)*z [] x=0 -> y:=0 [] x>0 -> y:=z*z fi"
     let program = edgesC Start End c Map.empty
-    //let (var, arr) = ceval c (Map.empty, Map.empty)
-    //printfn "%s" (getProgramGraphString program)
-    //let startVariableData = Map.ofList [("x", 5); ("y", 3); ("z", 5)]
     let startVariableData = getStartVariables (Map.empty, Map.empty)
     let finalData = interpret (Start, startVariableData, program)
     printf "Success! Memory:\n"
     let (_, memory, _) = finalData
     printfn "%s" (getMemoryString memory)
-    
-
-    // printfn "Map of variables: %M" var
-
-    // let edges = edgesC Start End c
-    // printfn "List of edges: %A" edges
-
-    (*
-    printfn "digraph program_graph {rankdir=LR;"
-    printfn "node [shape = circle]; qS;"
-    printfn "node [shape = doublecircle]; qE;"
-    printfn "node [shape = circle]"
-    printfn "%s" (printEdges edges)
-    printfn "}"
-    *)
-
-    // and print the result of evaluating it        
-    //printfn "Result: \n%s" (ceval c 0)
-
-    // with err -> printf "Couldn't parse program"
 
 // Start interacting with the user
 compute
