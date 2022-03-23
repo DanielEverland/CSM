@@ -61,11 +61,9 @@ let rec aeval e ((var, arr) : RuntimeData) : int =
     | Var(x)                ->  match Map.tryFind x var with
                                 | Some value -> value
                                 | None -> failwith ("No data has been assigned to " + (x.ToString()))
-                                            // failwith (sprintf "No variable with name %s exists." x)
-    | Array(x,y)            ->  match Array.tryFindIndex (fun elm -> elm = aeval y (var, arr)) (Map.find x arr) with
-                                | Some value -> value
-                                | None -> failwith ("No data has been assigned to " + (x.ToString()))
-                                            // failwith (sprintf "Index %f not found." (aeval y (var, arr)))
+    | Array(x,y)            ->  match Map.tryFind x arr with
+                                | Some arrVal -> arrVal.[(aeval y (var, arr))]
+                                | None -> failwith ("No array exists with the name " + (x.ToString()))
     | TimesExpr(x,y)        -> aeval x (var, arr) * aeval y (var, arr)
     | DivExpr(x,y)          -> int(aeval x (var, arr) / aeval y (var, arr))
     | PlusExpr(x,y)         -> aeval x (var, arr) + aeval y (var, arr)
@@ -205,7 +203,14 @@ and parseInput current input : RuntimeData =
     then (parseArray current input)
     else (parseVariable current input)
 and parseArray (varData, arrData) input : RuntimeData =
-    getStartVariables (varData, arrData)
+    let inputNoStartBracket = input.Replace("[", "")
+    let inputNoEndBracket = inputNoStartBracket.Replace("]", "")
+    let inputNoWhitespace = inputNoEndBracket.Replace(" ", "")
+    let [|initVar; initVal|] = inputNoWhitespace.Split '='
+    let nums = Array.toList (initVal.Split ',')
+    match nums with
+    |[]     -> failwith "invalid array value"
+    |x      -> getStartVariables ((varData), (arrData.Add (initVar, List.toArray (List.map (fun e -> int e) x))))
 and parseVariable (varData, arrData) input : RuntimeData =
     let operands = input.Split [|'='|]
     if operands.Length = 2
