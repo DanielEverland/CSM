@@ -193,7 +193,7 @@ let rec interpret ((current, memory, program):ProgramState) : ProgramState =
             let edges = Map.find current program
             match (getViableEdge edges memory) with
             | Some (action, viability, toNode) -> (interpret (toNode, (action memory), program))
-            | None -> failwith ("Could not determine viable edge of node " + (current.ToString()))
+            | None -> (current, memory, program)
 
 let rec getStartVariables (current:RuntimeData) : RuntimeData =
     printf "Please enter one variable at a time. Finish by typing \"quit\"\n"
@@ -217,7 +217,11 @@ and parseVariable (varData, arrData) input : RuntimeData =
     if operands.Length = 2
     then getStartVariables ((Map.add ((operands.[0]).Replace (" ", "")) (Int32.Parse ((operands.[1]).Replace (" ", ""))) varData), arrData)
     else failwith "Couldn't parse variable because there are not 2 operands"
-        
+
+let printProgramState ((node, memory, _) : ProgramState) : string =
+    "status: " + (if node = End then "terminated" else "stuck") + "\n" +
+    "Node: " + node.ToString() + "\n" +
+    getMemoryString memory
      
 // We implement here the function that interacts with the user
 let compute =
@@ -226,9 +230,7 @@ let compute =
     let program = edgesC Start End c Map.empty
     let startVariableData = getStartVariables (Map.empty, Map.empty)
     let finalData = interpret (Start, startVariableData, program)
-    printf "Success! Memory:\n"
-    let (_, memory, _) = finalData
-    printfn "%s" (getMemoryString memory)
+    printf "%s" (printProgramState finalData)
 
 // Start interacting with the user
 compute
