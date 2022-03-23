@@ -9,48 +9,55 @@ PAUSE
 ```
 
 # Running
-The input expects a valid GCL program and will output a string that can be interpreted by graphviz. Here's an example:
+The input expects a valid GCL program and will output the final state of the program when it either successfully finished or had to terminate prematurely.
+When the program has been entered it will ask the user to input the starting values for the variables the program uses one at a time.
 ```
-Enter an input program: if x>=y -> z:=x [] y>x -> z:=y [] y<x -> z:=y [] y!=x -> z:=y fi
-digraph program_graph {rankdir=LR;
-node [shape = circle]; qS;
-node [shape = doublecircle]; qE;
-node [shape = circle]
-qS -> q1 [label = "x>=y"];
-q1 -> qE [label = "z:=x"];
-qS -> q2 [label = "y>x"];
-q2 -> qE [label = "z:=y"];
-qS -> q3 [label = "y<x"];
-q3 -> qE [label = "z:=y"];
-qS -> q4 [label = "y<>x"];
-q4 -> qE [label = "z:=y"];
-}
-```
-
-## Determinism
-Determinism can be enabled by changing Task1.fsx line 19 to `let determinism = true`, in which case the above program's output will be:
-```
-Enter an input program: if x>=y -> z:=x [] y>x -> z:=y [] y<x -> z:=y [] y!=x -> z:=y fi
-digraph program_graph {rankdir=LR;
-node [shape = circle]; qS;
-node [shape = doublecircle]; qE;
-node [shape = circle]
-qS -> q1 [label = "x>=y&!false"];
-q1 -> qE [label = "z:=x"];
-qS -> q2 [label = "y>x&!false&!(x>=y)"];
-q2 -> qE [label = "z:=y"];
-qS -> q3 [label = "y<x&!false&!(x>=y)&!(y>x)"];
-q3 -> qE [label = "z:=y"];
-qS -> q4 [label = "y<>x&!(y<x)&!false&!(x>=y)&!(y>x)"];
-q4 -> qE [label = "z:=y"];
-}
+Enter an input program: if x>=y -> z:=x [] y>x -> z:=y fi
+Please enter one variable at a time. Finish by typing "quit"
+x=5
+Please enter one variable at a time. Finish by typing "quit"
+y=10
+Please enter one variable at a time. Finish by typing "quit"
+quit
+status: terminated
+Node: qE
+x: 5
+y: 10
+z: 10
 ```
 
-## Error Handling
-If the program couldn't be parsed, an error message will be displayed, and the program will terminate:
+## Stuck Programs
+If the program detects that it cannot continue execution with the given input, it will terminate and output the node it was stuck at and the current memory
 ```
-Enter an input program: df
-Couldn't parse program
+Enter an input program: if x>=y -> z:=x fi
+Please enter one variable at a time. Finish by typing "quit"
+x=0
+Please enter one variable at a time. Finish by typing "quit"
+y=1
+Please enter one variable at a time. Finish by typing "quit"
+quit
+status: stuck
+Node: qS
+x: 0
+y: 1
+```
+## Arrays
+The intepreter also supports arrays as shown in this example with an insertion sort program
+```
+Enter an input program: i:=1; do i<n -> j:=i; do (j>0)&&(A[j-1]>A[j]) -> t:=A[j]; A[j]:=A[j-1]; A[j-1]:=t; j:=j-1 od; i:=i+1 od
+Please enter one variable at a time. Finish by typing "quit"
+n=4
+Please enter one variable at a time. Finish by typing "quit"
+A=[4,3,2,1]
+Please enter one variable at a time. Finish by typing "quit"
+quit
+status: terminated
+Node: qE
+i: 4
+j: 0
+n: 4
+t: 1
+A: { 1, 2, 3, 4 }
 ```
 
 # Modified Files
