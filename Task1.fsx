@@ -46,13 +46,17 @@ type Program = Map<Node, Edge list>
 
 type ProgramState = (Node * RuntimeData * Program)
 
+type Domain = Set<Node>
+type SPFEdge = Node
+type SPF = Map<Node, SPFEdge list>
+
 let getEdges qFrom T =
     match Map.tryFind qFrom T with
     | Some e -> e
     | None -> []
 
-let merge (mapA : Program) (mapB : Program) = Map.fold (fun acc key value -> let edges = getEdges key acc
-                                                                             Map.add key (value@edges) acc) mapA mapB
+let merge mapA mapB = Map.fold (fun acc key value -> let edges = getEdges key acc
+                                                     Map.add key (value@edges) acc) mapA mapB
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
@@ -161,6 +165,59 @@ and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program
                                                     let E2 = edgesGC qFrom qTo gc2 b T
                                                     merge E1 E2
 
+let rec domC (qFrom : Node) (qTo : Node) (C : command) (D : Domain) : Domain =
+    match C with
+    | Commands(C1,C2)       -> let q = getFresh qFrom
+                               let E1 = domC qFrom q C1 D
+                               let E2 = domC q qTo C2 D
+                               Set.union E1 E2
+    | IfStatement(GC)       -> domGC qFrom qTo GC False D
+    | DoStatement(GC)       -> let E1 = domGC qFrom qFrom GC False D
+                               let E2 = Set.add qFrom D
+                               Set.union E1 E2
+    | _ -> D
+and domGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (D : Domain) : Domain =
+    match GC with
+    | BooleanGuard(b, C)    -> let q = getFresh qFrom
+                               domC q qTo C D
+    | GCommands(gc1, gc2)   -> let E1 = domGC qFrom qTo gc1 b D
+                               let E2 = domGC qFrom qTo gc2 b D
+                               Set.union E1 E2
+
+let rec spfC (qFrom : Node) (qTo : Node) (C : command) (T : SPF) : SPF =
+    match C with
+    | Commands(C1,C2)       -> let q = getFresh qFrom
+                               let E1 = spfC qFrom q C1 T
+                               let E2 = spfC q qTo C2 T
+                               merge E1 E2
+    | IfStatement(GC)       -> spfGC qFrom qTo GC False T
+    | DoStatement(GC)       -> let E1 = spfGC qFrom qFrom GC False T
+                               let E2 = Map.add qFrom ((qTo)::(getEdges qFrom T)) T
+                               merge E1 E2
+    //| _ -> if (qFrom = Start || qTo = End) then Map.add qFrom ((qTo)::(getEdges qFrom T)) T else T
+    | _ -> T
+and spfGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : SPF) : SPF =
+    match GC with
+    | BooleanGuard(b, C)    -> let q = getFresh qFrom
+                               spfC q qTo C T
+    | GCommands(gc1, gc2)   -> match determinism with
+                                | false ->  let E1 = spfGC qFrom qTo gc1 b T
+                                            let E2 = spfGC qFrom qTo gc2 b T
+                                            merge E1 E2
+                                | _     ->  match (gc1, gc2) with
+                                            | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = spfGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
+                                                                                                    let E2 = spfGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    merge E1 E2
+                                            | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = spfGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    let E2 = spfGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
+                                                                                                    merge E1 E2
+                                            | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = spfGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
+                                                                                                    let E2 = spfGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c2)) (And(b, Neg(ParBExpr(b1)))) T
+                                                                                                    merge E1 E2
+                                            | _ ->  let E1 = spfGC qFrom qTo gc1 b T
+                                                    let E2 = spfGC qFrom qTo gc2 b T
+                                                    merge E1 E2
+
 let parse input =
     // translate string into a buffer of characters
     let lexbuf = LexBuffer<char>.FromString input
@@ -195,42 +252,55 @@ let rec interpret ((current, memory, program):ProgramState) : ProgramState =
             | Some (action, viability, toNode) -> (interpret (toNode, (action memory), program))
             | None -> (current, memory, program)
 
-let rec getStartVariables (current:RuntimeData) : RuntimeData =
-    printf "Please enter one variable at a time. Finish by typing \"quit\"\n"
-    let input = Console.ReadLine()
-    if input = "quit" then current else (parseInput current input)
-and parseInput current input : RuntimeData =
-    if ((input.Contains "[") && (input.Contains "]"))
-    then (parseArray current input)
-    else (parseVariable current input)
-and parseArray (varData, arrData) input : RuntimeData =
-    let inputNoStartBracket = input.Replace("[", "")
-    let inputNoEndBracket = inputNoStartBracket.Replace("]", "")
-    let inputNoWhitespace = inputNoEndBracket.Replace(" ", "")
-    let [|initVar; initVal|] = inputNoWhitespace.Split '='
-    let nums = Array.toList (initVal.Split ',')
-    match nums with
-    |[]     -> failwith "invalid array value"
-    |x      -> getStartVariables ((varData), (arrData.Add (initVar, List.toArray (List.map (fun e -> int e) x))))
-and parseVariable (varData, arrData) input : RuntimeData =
-    let operands = input.Split [|'='|]
-    if operands.Length = 2
-    then getStartVariables ((Map.add ((operands.[0]).Replace (" ", "")) (Int32.Parse ((operands.[1]).Replace (" ", ""))) varData), arrData)
-    else failwith "Couldn't parse variable because there are not 2 operands"
+//let rec getStartVariables (current:RuntimeData) : RuntimeData =
+//    printf "Please enter one variable at a time. Finish by typing \"quit\"\n"
+//    let input = Console.ReadLine()
+//    if input = "quit" then current else (parseInput current input)
+//and parseInput current input : RuntimeData =
+//    if ((input.Contains "[") && (input.Contains "]"))
+//    then (parseArray current input)
+//    else (parseVariable current input)
+//and parseArray (varData, arrData) input : RuntimeData =
+//    let inputNoStartBracket = input.Replace("[", "")
+//    let inputNoEndBracket = inputNoStartBracket.Replace("]", "")
+//    let inputNoWhitespace = inputNoEndBracket.Replace(" ", "")
+//    let [|initVar; initVal|] = inputNoWhitespace.Split '='
+//    let nums = Array.toList (initVal.Split ',')
+//    match nums with
+//    |[]     -> failwith "invalid array value"
+//    |x      -> getStartVariables ((varData), (arrData.Add (initVar, List.toArray (List.map (fun e -> int e) x))))
+//and parseVariable (varData, arrData) input : RuntimeData =
+//    let operands = input.Split [|'='|]
+//    if operands.Length = 2
+//    then getStartVariables ((Map.add ((operands.[0]).Replace (" ", "")) (Int32.Parse ((operands.[1]).Replace (" ", ""))) varData), arrData)
+//    else failwith "Couldn't parse variable because there are not 2 operands"
 
 let printProgramState ((node, memory, _) : ProgramState) : string =
     "status: " + (if node = End then "terminated" else "stuck") + "\n" +
     "Node: " + node.ToString() + "\n" +
     getMemoryString memory
-     
-// We implement here the function that interacts with the user
-let compute =
+
+let getSPFString (spf:SPF) = Map.fold (fun acc key value -> acc + key.ToString() + " -> " + (List.fold (fun acc value -> acc + value.ToString() + ", ") "" value) + "\n") "" spf
+let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString() + ", ") "" dom
+
+//let doInterpret =
+//    printf "Enter an input program: "
+//    let c = parse (Console.ReadLine())
+//    let program = edgesC Start End c Map.empty
+//    let startVariableData = getStartVariables (Map.empty, Map.empty)
+//    let finalData = interpret (Start, startVariableData, program)
+//    printf "%s" (printProgramState finalData)
+
+let doProgramValidation =
     printf "Enter an input program: "
     let c = parse (Console.ReadLine())
-    let program = edgesC Start End c Map.empty
-    let startVariableData = getStartVariables (Map.empty, Map.empty)
-    let finalData = interpret (Start, startVariableData, program)
-    printf "%s" (printProgramState finalData)
+    let domain = domC Start End c (Set [Start; End])
+    //let program = spfC Start End c Map.empty
+    printf "%s" (getDomString domain)
+
+// We implement here the function that interacts with the user
+let compute =
+    doProgramValidation
 
 // Start interacting with the user
 compute
