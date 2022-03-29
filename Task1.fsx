@@ -199,9 +199,9 @@ let unionS (a:SPF) (b:SPF) : SPF = merge a b
 
 let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) : SPF =
     let validEdges = getValidEdges qFrom P
-    iterateOverEdges (fun (q, qEnd, S) -> if D.Contains q
-                                          then unionS S (Map.ofList [(q, [qEnd])])
-                                          else unionS S (build q qEnd D P S)) P S
+    iterateOverEdges (fun (q, _, newS) -> if D.Contains q
+                                             then unionS newS (Map.ofList [(q, [qTo])])
+                                             else unionS newS (build q qTo D P newS)) P S
 
     //List.fold (fun acc (q, alpha, qEnd) -> if (D.Contains q)
     //                                       then unionS S (Map.ofList [(q, qEnd)])
