@@ -50,6 +50,8 @@ type Domain = Set<Node>
 type SPFEdge = Node
 type SPF = Map<Node, SPFEdge list>
 
+type IterAction = (Node * Node * SPF) -> SPF
+
 let getEdges qFrom T =
     match Map.tryFind qFrom T with
     | Some e -> e
@@ -184,39 +186,33 @@ and domGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (D : Domain) :
                                let E2 = domGC qFrom qTo gc2 b D
                                Set.union E1 E2
 
-let rec spfC (qFrom : Node) (qTo : Node) (C : command) (T : SPF) : SPF =
-    match C with
-    | Commands(C1,C2)       -> let q = getFresh qFrom
-                               let E1 = spfC qFrom q C1 T
-                               let E2 = spfC q qTo C2 T
-                               merge E1 E2
-    | IfStatement(GC)       -> spfGC qFrom qTo GC False T
-    | DoStatement(GC)       -> let E1 = spfGC qFrom qFrom GC False T
-                               let E2 = Map.add qFrom ((qTo)::(getEdges qFrom T)) T
-                               merge E1 E2
-    //| _ -> if (qFrom = Start || qTo = End) then Map.add qFrom ((qTo)::(getEdges qFrom T)) T else T
-    | _ -> T
-and spfGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : SPF) : SPF =
-    match GC with
-    | BooleanGuard(b, C)    -> let q = getFresh qFrom
-                               spfC q qTo C T
-    | GCommands(gc1, gc2)   -> match determinism with
-                                | false ->  let E1 = spfGC qFrom qTo gc1 b T
-                                            let E2 = spfGC qFrom qTo gc2 b T
-                                            merge E1 E2
-                                | _     ->  match (gc1, gc2) with
-                                            | (BooleanGuard(b1, c1), GCommands(gc2gc1, gc2gc3)) ->  let E1 = spfGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
-                                                                                                    let E2 = spfGC qFrom qTo (GCommands(gc2gc1, gc2gc3)) (And(b, Neg(ParBExpr(b1)))) T
-                                                                                                    merge E1 E2
-                                            | (GCommands(gc1, gc2), BooleanGuard(b1, c1))       ->  let E1 = spfGC qFrom qTo (GCommands(gc1, gc2)) (And(b, Neg(ParBExpr(b1)))) T
-                                                                                                    let E2 = spfGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
-                                                                                                    merge E1 E2
-                                            | (BooleanGuard(b1, c1), BooleanGuard(b2, c2)) ->       let E1 = spfGC qFrom qTo (BooleanGuard(And(b1, Neg(b)), c1)) b T
-                                                                                                    let E2 = spfGC qFrom qTo (BooleanGuard(And(b2, Neg(And(ParBExpr(b1), Neg(b)))), c2)) (And(b, Neg(ParBExpr(b1)))) T
-                                                                                                    merge E1 E2
-                                            | _ ->  let E1 = spfGC qFrom qTo gc1 b T
-                                                    let E2 = spfGC qFrom qTo gc2 b T
-                                                    merge E1 E2
+let addIfDom (qFrom:Node) (qTo : Node) (dom:Domain) (T:SPF) : SPF = if dom.Contains qFrom then Map.add qFrom ((qTo)::(getEdges qFrom T)) T else T
+
+let getAllEdges (P:Program) : Edge list = Map.fold (fun acc key value -> acc@value) [] P
+let filterByEnd (N:Node) (E:(Edge list)) : Edge list = List.filter (fun (_, _, endNode) -> endNode = N) E
+let getValidEdges (N:Node) (P:Program) : Program = Map.fold (fun acc key edges ->   let filteredEdges = filterByEnd N edges
+                                                                                    if List.isEmpty filteredEdges
+                                                                                    then acc
+                                                                                    else Map.add key (filterByEnd N edges) acc) Map.empty P
+let iterateOverEdges (iter:IterAction) (P:Program) (S:SPF) = Map.fold (fun mapAcc qFrom edges -> (List.fold (fun listAcc (_, _, qTo) -> (iter (qFrom, qTo, listAcc)) )) mapAcc edges) S P
+let unionS (a:SPF) (b:SPF) : SPF = merge a b
+
+let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) : SPF =
+    let validEdges = getValidEdges qFrom P
+    iterateOverEdges (fun (q, qEnd, S) -> if D.Contains q
+                                          then unionS S (Map.ofList [(q, [qEnd])])
+                                          else unionS S (build q qEnd D P S)) P S
+
+    //List.fold (fun acc (q, alpha, qEnd) -> if (D.Contains q)
+    //                                       then unionS S (Map.ofList [(q, qEnd)])
+    //                                       else unionS S (build q qEnd D P S)) [] 
+
+    //Map.fold (fun acc q edges -> List.fold (fun accE (_, _, e) -> if e = qFrom
+    //                                                              then if (Set.contains q D)
+    //                                                                   then Map.add q ((qTo)::(getEdges q accE)) accE
+    //                                                                   else build q qTo D P accE
+    //                                                              else accE) acc edges) S P
+                             
 
 let parse input =
     // translate string into a buffer of characters
@@ -295,8 +291,13 @@ let doProgramValidation =
     printf "Enter an input program: "
     let c = parse (Console.ReadLine())
     let domain = domC Start End c (Set [Start; End])
-    //let program = spfC Start End c Map.empty
-    printf "%s" (getDomString domain)
+    let program = edgesC Start End c Map.empty
+    let spf = Set.fold (fun acc q -> build q q domain program acc) Map.empty domain
+
+    //let program = spfC Start End c domain Map.empty
+
+
+    printf "%s" (getSPFString spf)
 
 // We implement here the function that interacts with the user
 let compute =
