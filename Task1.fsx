@@ -195,13 +195,15 @@ let getValidEdges (N:Node) (P:Program) : Program = Map.fold (fun acc key edges -
                                                                                     then acc
                                                                                     else Map.add key (filterByEnd N edges) acc) Map.empty P
 let iterateOverEdges (iter:IterAction) (P:Program) (S:SPF) = Map.fold (fun mapAcc qFrom edges -> (List.fold (fun listAcc (_, _, qTo) -> (iter (qFrom, qTo, listAcc)) )) mapAcc edges) S P
-let unionS (a:SPF) (b:SPF) : SPF = merge a b
+let unionS (a:SPF) (b:SPF) : SPF = Map.fold (fun acc key (value:SPFEdge list) -> let edges = List.filter (fun (v:SPFEdge) -> (List.contains v value) = false) (getEdges key acc)
+                                                                                 Map.add key (value@edges) acc) a b
 
 let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) : SPF =
     let validEdges = getValidEdges qFrom P
     iterateOverEdges (fun (q, _, newS) -> if D.Contains q
                                              then unionS newS (Map.ofList [(q, [qTo])])
-                                             else unionS newS (build q qTo D P newS)) P S
+                                             else unionS newS (build q qTo D P newS)
+                                             ) validEdges S
 
     //List.fold (fun acc (q, alpha, qEnd) -> if (D.Contains q)
     //                                       then unionS S (Map.ofList [(q, qEnd)])
@@ -288,16 +290,18 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 //    printf "%s" (printProgramState finalData)
 
 let doProgramValidation =
-    printf "Enter an input program: "
-    let c = parse (Console.ReadLine())
+    //printf "Enter an input program: "
+    //let c = parse (Console.ReadLine())
+    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
     let domain = domC Start End c (Set [Start; End])
+    n <- 0
     let program = edgesC Start End c Map.empty
-    let spf = Set.fold (fun acc q -> build q q domain program acc) Map.empty domain
+    //printf "%d\n" program.Count
+    let spf = Set.fold (fun acc q -> unionS acc (build q q domain program acc) ) Map.empty domain
 
     //let program = spfC Start End c domain Map.empty
 
-
-    printf "%s" (getSPFString spf)
+    printf "%s\n" (getSPFString spf)
 
 // We implement here the function that interacts with the user
 let compute =
