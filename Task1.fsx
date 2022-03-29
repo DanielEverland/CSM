@@ -215,6 +215,14 @@ let rec buildPredicates (D:Node list) (P:Predicates) : Predicates =
     | x::xs -> buildPredicates xs (Map.add x (getPredicateFromUser x) P)
     | _ -> P
 
+let rec buildProofObligationsKeyValuePair (from:Node) (edges:SPFEdge list) (P:Predicates) : string =
+    List.fold (fun acc edge -> acc + "\n" + (buildProofObligationsWithEdge from edge P)) "" edges
+and buildProofObligationsWithEdge (from:Node) (edge:SPFEdge) (P:Predicates) : string = 
+    (Map.find from P) + " actions " + (Map.find edge P)
+let buildProofObligations (S:SPF) (P:Predicates) : string =
+    Map.fold (fun acc key edgeList -> acc + (buildProofObligationsKeyValuePair key edgeList P)) "" S
+    
+
 let parse input =
     // translate string into a buffer of characters
     let lexbuf = LexBuffer<char>.FromString input
@@ -301,7 +309,8 @@ let doProgramValidation =
 
     let predicates = buildPredicates (Set.toList domain) Map.empty
     
-    printf "%s\n" (getSPFString spf)
+    //printf "%s\n" (getSPFString spf)
+    printfn "%s" (buildProofObligations spf predicates)
 
 // We implement here the function that interacts with the user
 let compute =
