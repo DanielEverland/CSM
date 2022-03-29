@@ -50,6 +50,8 @@ type Domain = Set<Node>
 type SPFEdge = Node
 type SPF = Map<Node, SPFEdge list>
 
+type Predicates = Map<Node, string>
+
 type IterAction = (Node * Node * SPF) -> SPF
 
 let getEdges qFrom T =
@@ -205,16 +207,13 @@ let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) : SPF =
                                              else unionS newS (build q qTo D P newS)
                                              ) validEdges S
 
-    //List.fold (fun acc (q, alpha, qEnd) -> if (D.Contains q)
-    //                                       then unionS S (Map.ofList [(q, qEnd)])
-    //                                       else unionS S (build q qEnd D P S)) [] 
-
-    //Map.fold (fun acc q edges -> List.fold (fun accE (_, _, e) -> if e = qFrom
-    //                                                              then if (Set.contains q D)
-    //                                                                   then Map.add q ((qTo)::(getEdges q accE)) accE
-    //                                                                   else build q qTo D P accE
-    //                                                              else accE) acc edges) S P
-                             
+let getPredicateFromUser (node:Node) : string =
+    printf "%s" ("Enter predicate for " + node.ToString() + ": ")
+    Console.ReadLine()
+let rec buildPredicates (D:Node list) (P:Predicates) : Predicates =
+    match D with
+    | x::xs -> buildPredicates xs (Map.add x (getPredicateFromUser x) P)
+    | _ -> P
 
 let parse input =
     // translate string into a buffer of characters
@@ -294,13 +293,14 @@ let doProgramValidation =
     //let c = parse (Console.ReadLine())
     let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
     let domain = domC Start End c (Set [Start; End])
+
+    // Reset "get fresh" function
     n <- 0
     let program = edgesC Start End c Map.empty
-    //printf "%d\n" program.Count
     let spf = Set.fold (fun acc q -> unionS acc (build q q domain program acc) ) Map.empty domain
 
-    //let program = spfC Start End c domain Map.empty
-
+    let predicates = buildPredicates (Set.toList domain) Map.empty
+    
     printf "%s\n" (getSPFString spf)
 
 // We implement here the function that interacts with the user
