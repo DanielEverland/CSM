@@ -19,11 +19,11 @@ type aexpr =
                 | Num v -> v.ToString()
                 | Var s -> s
                 | Array (s, expr)    -> s + "[" + expr.ToString() + "]"
-                | TimesExpr (a, b)   -> a.ToString() + " * " + b.ToString()
-                | DivExpr (a, b)     -> a.ToString() + " / " + b.ToString()
-                | PlusExpr (a, b)    -> a.ToString() + " + " + b.ToString()
-                | MinusExpr (a, b)   -> a.ToString() + " - " + b.ToString()
-                | PowExpr (a, b)     -> a.ToString() + " ^ " + b.ToString()
+                | TimesExpr (a, b)   -> a.ToString() + "*" + b.ToString()
+                | DivExpr (a, b)     -> a.ToString() + "/" + b.ToString()
+                | PlusExpr (a, b)    -> a.ToString() + "+" + b.ToString()
+                | MinusExpr (a, b)   -> a.ToString() + "-" + b.ToString()
+                | PowExpr (a, b)     -> a.ToString() + "^" + b.ToString()
                 | UPlusExpr v     -> v.ToString()
                 | UMinusExpr v    -> "-" + v.ToString()
                 | ParAExpr expr   -> "(" + expr.ToString() + ")"
@@ -47,17 +47,17 @@ type bexpr =
                 match this with
                 | True        -> "True"
                 | False       -> "False"
-                | And (a, b)    -> a.ToString() + " & " + b.ToString()
-                | Or (a, b)     -> a.ToString() + " | " + b.ToString()
-                | SAnd (a, b)   -> a.ToString() + " && " + b.ToString()
-                | SOr (a, b)    -> a.ToString() + " || " + b.ToString()
+                | And (a, b)    -> a.ToString() + "&" + b.ToString()
+                | Or (a, b)     -> a.ToString() + "|" + b.ToString()
+                | SAnd (a, b)   -> a.ToString() + "&&" + b.ToString()
+                | SOr (a, b)    -> a.ToString() + "||" + b.ToString()
                 | Neg e       -> "!" + e.ToString()
-                | Equal (a, b)   -> a.ToString() + " = " + b.ToString()
-                | NEqual (a, b)  -> a.ToString() + " != " + b.ToString()
-                | Greater (a, b) -> a.ToString() + " > " + b.ToString()
-                | GreaterEqual (a, b)    -> a.ToString() + " >= " + b.ToString()
-                | Less (a, b)    -> a.ToString() + " < " + b.ToString()
-                | LessEqual (a, b)   -> a.ToString() + " <= " + b.ToString()
+                | Equal (a, b)   -> a.ToString() + "=" + b.ToString()
+                | NEqual (a, b)  -> a.ToString() + "!=" + b.ToString()
+                | Greater (a, b) -> a.ToString() + ">" + b.ToString()
+                | GreaterEqual (a, b)    -> a.ToString() + ">=" + b.ToString()
+                | Less (a, b)    -> a.ToString() + "<" + b.ToString()
+                | LessEqual (a, b)   -> a.ToString() + "<=" + b.ToString()
                 | ParBExpr e  -> "(" + e.ToString() + ")"
 
 
@@ -80,6 +80,6 @@ and command =
                   | AssignExpr (varName, expr) -> varName + ":=" + expr.ToString()
                   | AssignArray (arrName, arrIndex, value) -> arrName + "[" + arrIndex.ToString() + "]:=" + value.ToString()
                   | Skip -> "Skip"
-                  | Commands _ -> "Commands"
+                  | Commands (a, b) -> "Commands"
                   | IfStatement gComm -> gComm.ToString()
                   | DoStatement gComm -> gComm.ToString()
