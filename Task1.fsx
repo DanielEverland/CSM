@@ -39,7 +39,7 @@ type CompiledAction = RuntimeData -> RuntimeData
 type EdgeViability = RuntimeData -> bexpr
 
 // An edge consists of an action and target node
-type Edge = CompiledAction * EdgeViability * Node
+type Edge = CompiledAction * string * EdgeViability * Node
 
 // A lookup table that determines the edges of all nodes
 type Program = Map<Node, Edge list>
@@ -47,9 +47,9 @@ type Program = Map<Node, Edge list>
 type ProgramState = (Node * RuntimeData * Program)
 
 type Domain = Set<Node>
-type SPFEdge = Node
+type SubDomain = Set<Node>
+type SPFEdge = Node * SubDomain
 type SPF = Map<Node, SPFEdge list>
-
 type Predicates = Map<Node, string>
 
 type IterAction = (Node * Node * SPF) -> SPF
@@ -61,6 +61,8 @@ let getEdges qFrom T =
 
 let merge mapA mapB = Map.fold (fun acc key value -> let edges = getEdges key acc
                                                      Map.add key (value@edges) acc) mapA mapB
+
+let ToString (sd:SubDomain) = Set.fold (fun acc v -> if acc = "" then v.ToString() else acc + ", " + v.ToString()) "" sd
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
@@ -135,8 +137,8 @@ let rec doneGC = function
 
 let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program =
     match C with
-    | AssignExpr(x,y)       -> Map.add qFrom (((fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
-    | AssignArray(x,y,z)    -> Map.add qFrom (((fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignExpr(x,y)       -> Map.add qFrom (((fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignArray(x,y,z)    -> Map.add qFrom (((fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
     | Skip                  -> T
     | Commands(C1,C2)       -> let q = getFresh qFrom
                                let E1 = edgesC qFrom q C1 T
@@ -144,13 +146,13 @@ let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program
                                merge E1 E2
     | IfStatement(GC)       -> edgesGC qFrom qTo GC False T
     | DoStatement(GC)       -> let E1 = edgesGC qFrom qFrom GC False T
-                               let E2 = Map.add qFrom (((fun runtimeData -> ceval (DoStatement(GC)) runtimeData), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
+                               let E2 = Map.add qFrom (((fun runtimeData -> ceval (DoStatement(GC)) runtimeData), C.ToString(), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
                                merge E1 E2
 and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program) : Program =
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C T
-                               Map.add qFrom (((fun runtimeData -> runtimeData), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
+                               Map.add qFrom (((fun runtimeData -> runtimeData), C.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
     | GCommands(gc1, gc2)   -> match determinism with
                                 | false ->  let E1 = edgesGC qFrom qTo gc1 b T
                                             let E2 = edgesGC qFrom qTo gc2 b T
@@ -188,23 +190,28 @@ and domGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (D : Domain) :
                                let E2 = domGC qFrom qTo gc2 b D
                                Set.union E1 E2
 
-let addIfDom (qFrom:Node) (qTo : Node) (dom:Domain) (T:SPF) : SPF = if dom.Contains qFrom then Map.add qFrom ((qTo)::(getEdges qFrom T)) T else T
+let getActionStr (qFrom:Node) (qTo:Node) (P:Program) = let (_, str, _, _) = List.find (fun (_, _, _, toNode) -> qTo = toNode) (Map.find qFrom P)
+                                                       str
+
+//let addIfDom (qFrom:Node) (qTo : Node) (dom:Domain) (T:SPF) : SPF = if dom.Contains qFrom then Map.add qFrom ((qTo, [])::(getEdges qFrom T)) T else T
 
 let getAllEdges (P:Program) : Edge list = Map.fold (fun acc key value -> acc@value) [] P
-let filterByEnd (N:Node) (E:(Edge list)) : Edge list = List.filter (fun (_, _, endNode) -> endNode = N) E
+let filterByEnd (N:Node) (E:(Edge list)) : Edge list = List.filter (fun (_, _, _, endNode) -> endNode = N) E
 let getValidEdges (N:Node) (P:Program) : Program = Map.fold (fun acc key edges ->   let filteredEdges = filterByEnd N edges
                                                                                     if List.isEmpty filteredEdges
                                                                                     then acc
                                                                                     else Map.add key (filterByEnd N edges) acc) Map.empty P
-let iterateOverEdges (iter:IterAction) (P:Program) (S:SPF) = Map.fold (fun mapAcc qFrom edges -> (List.fold (fun listAcc (_, _, qTo) -> (iter (qFrom, qTo, listAcc)) )) mapAcc edges) S P
+let iterateOverEdges (iter:IterAction) (P:Program) (S:SPF) = Map.fold (fun mapAcc qFrom edges -> (List.fold (fun listAcc (_, _, _, qTo) -> (iter (qFrom, qTo, listAcc)) )) mapAcc edges) S P
 let unionS (a:SPF) (b:SPF) : SPF = Map.fold (fun acc key (value:SPFEdge list) -> let edges = List.filter (fun (v:SPFEdge) -> (List.contains v value) = false) (getEdges key acc)
                                                                                  Map.add key (value@edges) acc) a b
 
-let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) : SPF =
+let addToSubDomain (qFrom:Node) (qTo : Node) (D:SubDomain) : SubDomain = Set.union (set [qFrom; qTo]) D
+
+let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) (SD:SubDomain) : SPF =
     let validEdges = getValidEdges qFrom P
     iterateOverEdges (fun (q, _, newS) -> if D.Contains q
-                                             then unionS newS (Map.ofList [(q, [qTo])])
-                                             else unionS newS (build q qTo D P newS)
+                                             then unionS newS (Map.ofList [(q, [qTo, (addToSubDomain q qTo SD)])])
+                                             else unionS newS (build q qTo D P newS (addToSubDomain q qTo SD))
                                              ) validEdges S
 
 let getPredicateFromUser (node:Node) : string =
@@ -217,8 +224,8 @@ let rec buildPredicates (D:Node list) (P:Predicates) : Predicates =
 
 let rec buildProofObligationsKeyValuePair (from:Node) (edges:SPFEdge list) (P:Predicates) : string =
     List.fold (fun acc edge -> acc + "\n" + (buildProofObligationsWithEdge from edge P)) "" edges
-and buildProofObligationsWithEdge (from:Node) (edge:SPFEdge) (P:Predicates) : string = 
-    (Map.find from P) + " actions " + (Map.find edge P)
+and buildProofObligationsWithEdge (from:Node) (qTo, sd) (P:Predicates) : string = 
+    (Map.find from P) + " " + ToString(sd) + " " + (Map.find qTo P)
 let buildProofObligations (S:SPF) (P:Predicates) : string =
     Map.fold (fun acc key edgeList -> acc + (buildProofObligationsKeyValuePair key edgeList P)) "" S
     
@@ -236,7 +243,7 @@ let rec printEdges = function
     | (qFrom, label, qTo)::xs   -> printEdge qFrom label qTo + "\n" + printEdges xs
     | _                         -> ""
 
-let getProgramGraphString (program:Program) = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, _, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
+let getProgramGraphString (program:Program) = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, _, _, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
 
 let getMemoryString ((varData, arrData):RuntimeData) =
     let varStr varData = Map.fold (fun acc name value -> acc + name + ": " + value.ToString() + "\n") "" varData
@@ -245,7 +252,7 @@ let getMemoryString ((varData, arrData):RuntimeData) =
 
 let rec getViableEdge (edges : Edge list) (memory : RuntimeData) : Option<Edge> =
     match edges with
-    | (action, viability, toNode)::xs -> if beval (viability memory) memory then (Some (action, viability, toNode)) else (getViableEdge xs memory)
+    | (action, actionName, viability, toNode)::xs -> if beval (viability memory) memory then (Some (action, actionName, viability, toNode)) else (getViableEdge xs memory)
     | [] -> None
 
 let rec interpret ((current, memory, program):ProgramState) : ProgramState =
@@ -254,7 +261,7 @@ let rec interpret ((current, memory, program):ProgramState) : ProgramState =
     | _ ->  if debug then printf "%s\n" (current.ToString())
             let edges = Map.find current program
             match (getViableEdge edges memory) with
-            | Some (action, viability, toNode) -> (interpret (toNode, (action memory), program))
+            | Some (action, _, _, toNode) -> (interpret (toNode, (action memory), program))
             | None -> (current, memory, program)
 
 //let rec getStartVariables (current:RuntimeData) : RuntimeData =
@@ -300,12 +307,14 @@ let doProgramValidation =
     //printf "Enter an input program: "
     //let c = parse (Console.ReadLine())
     let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
+    //let c = parse "if x>=y -> z:=x [] y>x -> z:=y fi"
+    //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1; do x>0 -> y:=x*y; x:=x-1 od od"
     let domain = domC Start End c (Set [Start; End])
 
     // Reset "get fresh" function
     n <- 0
     let program = edgesC Start End c Map.empty
-    let spf = Set.fold (fun acc q -> unionS acc (build q q domain program acc) ) Map.empty domain
+    let spf = Set.fold (fun acc q -> unionS acc (build q q domain program acc Set.empty) ) Map.empty domain
 
     let predicates = buildPredicates (Set.toList domain) Map.empty
     
