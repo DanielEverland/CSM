@@ -9,55 +9,15 @@ PAUSE
 ```
 
 # Running
-The input expects a valid GCL program and will output the final state of the program when it either successfully finished or had to terminate prematurely.
-When the program has been entered it will ask the user to input the starting values for the variables the program uses one at a time.
-```
-Enter an input program: if x>=y -> z:=x [] y>x -> z:=y fi
-Please enter one variable at a time. Finish by typing "quit"
-x=5
-Please enter one variable at a time. Finish by typing "quit"
-y=10
-Please enter one variable at a time. Finish by typing "quit"
-quit
-status: terminated
-Node: qE
-x: 5
-y: 10
-z: 10
-```
+The predicates and programs are manually entered into the source code prior to running the program. The source code comes bundled with two programs and predicates, but adding more can easily be done by following their formatting.
 
-## Stuck Programs
-If the program detects that it cannot continue execution with the given input, it will terminate and output the node it was stuck at and the current memory
+Once the program is executed logical formulas will be output for each edge in the SPF.
+
+Here's an output based on the loop example from the lectures:
 ```
-Enter an input program: if x>=y -> z:=x fi
-Please enter one variable at a time. Finish by typing "quit"
-x=0
-Please enter one variable at a time. Finish by typing "quit"
-y=1
-Please enter one variable at a time. Finish by typing "quit"
-quit
-status: stuck
-Node: qS
-x: 0
-y: 1
-```
-## Arrays
-The intepreter also supports arrays as shown in this example with an insertion sort program
-```
-Enter an input program: i:=1; do i<n -> j:=i; do (j>0)&&(A[j-1]>A[j]) -> t:=A[j]; A[j]:=A[j-1]; A[j-1]:=t; j:=j-1 od; i:=i+1 od
-Please enter one variable at a time. Finish by typing "quit"
-n=4
-Please enter one variable at a time. Finish by typing "quit"
-A=[4,3,2,1]
-Please enter one variable at a time. Finish by typing "quit"
-quit
-status: terminated
-Node: qE
-i: 4
-j: 0
-n: 4
-t: 1
-A: { 1, 2, 3, 4 }
+M=m => M=(0)*n+m
+M=q*n+m => M=(q+1)*n+(m-n)
+M=q*n+m => M=q*n+m
 ```
 
 # Modified Files
