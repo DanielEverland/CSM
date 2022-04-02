@@ -60,7 +60,6 @@ type bexpr =
                 | LessEqual (a, b)   -> a.ToString() + "<=" + b.ToString()
                 | ParBExpr e  -> "(" + e.ToString() + ")"
 
-
 type gcommand =
     | BooleanGuard of (bexpr * command)
     | GCommands of (gcommand * gcommand)
