@@ -38,7 +38,7 @@ type Sign = | Plus
                     | Minus -> "Minus"
                     | Zero -> "Zero"
 
-type NodeSigns = Map<string, Sign>
+type NodeSigns = (Map<string, Sign> * Map<string, Set<Sign>>)
 type NodeSignsCollection = Set<NodeSigns>
 type SignMemory = Map<Node, NodeSignsCollection>
 
@@ -137,6 +137,22 @@ and ceval e ((var, arr) : RuntimeData) : RuntimeData =
                                arr1.[int(aeval y (var, arr))] <- aeval z (var, arr)
                                (var, arr.Add (x, arr1))
     | Skip                  -> (var, arr)
+
+let getCartesian (a:Set<Sign>) (b:Set<Sign>) : Set<Sign * Sign> = 
+    Set.fold (fun acc aVal -> (Set.fold (fun accIn bVal -> (Set.add (aVal, bVal) accIn) ) acc b) ) Set.empty a
+
+let getSignSet (a:Set<Sign>) (b:Set<Sign>) lookup : Set<Sign> =
+    Map.find b (Map.find a lookup)
+
+let plusSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [Minus]);               (Zero, set [Minus]);    (Plus, set [Minus; Zero; Plus]) ])
+    (Zero,      Map.ofList [    (Minus, set [Minus]);               (Zero, set [Zero]);     (Plus, set [Plus]) ])
+    (Plus,      Map.ofList [    (Minus, set [Minus; Zero; Plus]);   (Zero, set [Plus]);     (Plus, set [Plus]) ]) ]
+
+let rec aevalSign expr : Set<Sign> = 
+    match expr with
+    | PlusExpr(x, y) -> getSignSet (aevalSign x) (aevalSign y) plusSignLookup
+    | _ -> Set.empty
 
 let rec replaceInPredicateB varName expr p : bexpr =
     match p with
@@ -392,9 +408,22 @@ let rec getStartSigns (current:NodeSigns) : NodeSigns =
     let input = Console.ReadLine()
     if input = "quit" then current else (parseSignInput current input)
 and parseSignInput current input : NodeSigns =
+    if ((input.Contains "{") && (input.Contains "}"))
+    then (parseSignArray current input)
+    else (parseSignVariable current input)
+and parseSignArray (varData, arrData) input : NodeSigns =
+    let inputNoStartBracket = input.Replace("{", "")
+    let inputNoEndBracket = inputNoStartBracket.Replace("}", "")
+    let inputNoWhitespace = inputNoEndBracket.Replace(" ", "")
+    let [|initVar; initVal|] = inputNoWhitespace.Split '='
+    let nums = Array.toList (initVal.Split ',')
+    match nums with
+    |[]     -> failwith "invalid array value"
+    |x      -> getStartSigns (varData, ( arrData.Add (initVar, set (List.map (fun e -> parseSign e) x)) ))
+and parseSignVariable (varData, arrData) input : NodeSigns =
     let operands = input.Split [|'='|]
     if operands.Length = 2
-    then getStartSigns (Map.add ((operands.[0]).Replace (" ", "")) (parseSign ((operands.[1]).Replace (" ", ""))) current)
+    then getStartSigns ((Map.add ((operands.[0]).Replace (" ", "")) (parseSign ((operands.[1]).Replace (" ", ""))) varData), arrData)
     else failwith "Couldn't parse variable because there are not 2 operands"
 
 //let rec getStartVariables (current:RuntimeData) : RuntimeData =
@@ -462,11 +491,10 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 
 let doSignAnalysis =
     let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
-    let firstSigns = Map.ofList [("x", Plus); ("y", Plus)]
-    //let firstSigns = getStartSigns Map.empty
-
+    let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
+    //let firstSigns = getStartSigns (Map.empty, Map.empty)
     let program = edgesC Start End c Map.empty    
-    let signMemory = Map.ofList [(Start, set [firstSigns])]
+    let signMemory = Map.ofList [(Start, (set [firstSigns]))]
     printfn "%A" (signAnalysis program Start signMemory)
 
 // Start interacting with the user
