@@ -142,17 +142,64 @@ let getCartesian (a:Set<Sign>) (b:Set<Sign>) : Set<Sign * Sign> =
     Set.fold (fun acc aVal -> (Set.fold (fun accIn bVal -> (Set.add (aVal, bVal) accIn) ) acc b) ) Set.empty a
 
 let getSignSet (a:Set<Sign>) (b:Set<Sign>) lookup : Set<Sign> =
-    Map.find b (Map.find a lookup)
+    let cartesianProduct = getCartesian a b
+    Set.fold (fun acc (x, y) -> Set.union (Map.find x (Map.find y lookup)) acc) Set.empty cartesianProduct
 
+let getVarSignSet (name:string) (col:NodeSignsCollection) : Set<Sign> =
+    Set.fold (fun acc (vars, arrs) ->
+        let foundVar = match Map.tryFind name vars with
+                       | Some v -> set[v]
+                       | None -> Set.empty
+        let foundArrs = match Map.tryFind name arrs with
+                        | Some v -> v
+                        | None -> Set.empty
+        Set.union (Set.union acc foundVar) foundArrs) Set.empty col
+
+let setVarSignSetOverCollection (n:string) (s:Sign) (c:NodeSignsCollection) : NodeSignsCollection =
+    Set.fold (fun acc (vars, arrs) -> Set.add (Map.add n s vars, arrs) acc ) Set.empty c
+let setVarSignSet (n:string) (signs:Set<Sign>) (c:NodeSignsCollection) : NodeSignsCollection = 
+    Set.fold (fun acc s -> Set.union acc (setVarSignSetOverCollection n s c)) Set.empty signs
+
+let flipSigns (s:Set<Sign>) = Set.fold (fun acc v -> Set.add (if v = Plus then Minus else if v = Minus then Plus else Zero) acc) Set.empty s
+    
 let plusSignLookup =  Map.ofList [ 
     (Minus,     Map.ofList [    (Minus, set [Minus]);               (Zero, set [Minus]);    (Plus, set [Minus; Zero; Plus]) ])
     (Zero,      Map.ofList [    (Minus, set [Minus]);               (Zero, set [Zero]);     (Plus, set [Plus]) ])
     (Plus,      Map.ofList [    (Minus, set [Minus; Zero; Plus]);   (Zero, set [Plus]);     (Plus, set [Plus]) ]) ]
 
-let rec aevalSign expr : Set<Sign> = 
+let minusSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [Minus; Zero; Plus]);   (Zero, set [Minus]);    (Plus, set [Minus]) ])
+    (Zero,      Map.ofList [    (Minus, set [Plus]);                (Zero, set [Zero]);     (Plus, set [Minus]) ])
+    (Plus,      Map.ofList [    (Minus, set [Plus]);                (Zero, set [Plus]);     (Plus, set [Minus; Zero; Plus]) ]) ]
+
+let timesSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [Plus]);    (Zero, set [Zero]);     (Plus, set [Minus]) ])
+    (Zero,      Map.ofList [    (Minus, set [Zero]);    (Zero, set [Zero]);     (Plus, set [Zero]) ])
+    (Plus,      Map.ofList [    (Minus, set [Minus]);   (Zero, set [Zero]);     (Plus, set [Plus]) ]) ]
+
+let divisionSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [Plus]);    (Zero, set []);     (Plus, set [Minus]) ])
+    (Zero,      Map.ofList [    (Minus, set [Zero]);    (Zero, set []);     (Plus, set [Zero]) ])
+    (Plus,      Map.ofList [    (Minus, set [Minus]);   (Zero, set []);     (Plus, set [Plus]) ]) ]
+
+let powSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [Minus; Plus]);     (Zero, set [Plus]);     (Plus, set [Minus; Plus]) ])
+    (Zero,      Map.ofList [    (Minus, set []);                (Zero, set [Plus]);     (Plus, set [Zero]) ])
+    (Plus,      Map.ofList [    (Minus, set [Plus]);            (Zero, set [Plus]);     (Plus, set [Plus]) ]) ]
+
+let rec aevalSign expr (signs : NodeSignsCollection) : Set<Sign> = 
     match expr with
-    | PlusExpr(x, y) -> getSignSet (aevalSign x) (aevalSign y) plusSignLookup
-    | _ -> Set.empty
+    | Num x             -> if x > 0 then set [Plus] else if x < 0 then set [Minus] else set [Zero]
+    | Var n             -> getVarSignSet n signs
+    | Array(n, i)       -> if (Set.intersect (aevalSign i signs) (set[Zero; Plus])).IsEmpty then Set.empty else (getVarSignSet n signs)
+    | TimesExpr(x,y)    -> getSignSet (aevalSign x signs) (aevalSign y signs) timesSignLookup
+    | DivExpr(x,y)      -> getSignSet (aevalSign x signs) (aevalSign y signs) divisionSignLookup
+    | PlusExpr(x, y)    -> getSignSet (aevalSign x signs) (aevalSign y signs) plusSignLookup
+    | MinusExpr(x, y)   -> getSignSet (aevalSign x signs) (aevalSign y signs) minusSignLookup
+    | PowExpr(x,y)      -> getSignSet (aevalSign x signs) (aevalSign y signs) powSignLookup
+    | UPlusExpr(x)      -> aevalSign x signs
+    | UMinusExpr(x)     -> flipSigns (aevalSign x signs)
+    | ParAExpr(x)       -> aevalSign x signs
 
 let rec replaceInPredicateB varName expr p : bexpr =
     match p with
@@ -210,7 +257,7 @@ let rec doneGC = function
 
 let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program =
     match C with
-    | AssignExpr(x,y)       -> Map.add qFrom (((fun a -> a), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignExpr(x,y)       -> Map.add qFrom (((fun M -> setVarSignSet x (aevalSign y M) M), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
     | AssignArray(x,y,z)    -> Map.add qFrom (((fun a -> a), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
     | Skip                  -> T
     | Commands(C1,C2)       -> let q = getFresh qFrom
@@ -357,8 +404,8 @@ let signAnalysis (P:Program) (qInit:Node) (A:SignMemory) : SignMemory =
                                               let newSigns = action (Map.find q A)
                                               let endSigns = Map.find toNode A
                                               if Set.isSubset newSigns endSigns
-                                              then doForAllEdges q (toNode::W) (Map.add toNode (Set.union newSigns endSigns) A) es
-                                              else doForAllEdges q W A es
+                                              then doForAllEdges q W A es
+                                              else doForAllEdges q (toNode::W) (Map.add toNode (Set.union newSigns endSigns) A) es
         | _ -> (A, W)
     iterWorklist initializedMemory Winit
 
@@ -490,12 +537,15 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 //    printfn "%s" (buildContract spf predicates program)
 
 let doSignAnalysis =
-    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
-    let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
+    //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
+    //let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
+
+    let c = parse "y:=2; z:=y*-1"
+    let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
     //let firstSigns = getStartSigns (Map.empty, Map.empty)
     let program = edgesC Start End c Map.empty    
     let signMemory = Map.ofList [(Start, (set [firstSigns]))]
-    printfn "%A" (signAnalysis program Start signMemory)
+    printfn "%A" (signAnalysis program Start signMemory)                              
 
 // Start interacting with the user
 doSignAnalysis
