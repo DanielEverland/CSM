@@ -17,7 +17,7 @@ open Task1Lexer
 // ======================
 // Toggles whether a deterministic program graph is created
 let determinism = false
-let debug = true
+let debug = false
 
 type Node = | Start
             | End
@@ -603,15 +603,16 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 //    printfn "%s" (buildContract spf predicates program)
 
 let doSignAnalysis =
-    let c = parse "do x>0 -> x:=x-1 od"
-    let firstSigns = (Map.ofList [("x", Plus)], Map.empty)
+    //let c = parse "do x>0 -> x:=x-1 od"
+    //let firstSigns = (Map.ofList [("x", Plus)], Map.empty)
 
     //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
     //let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
 
-    //let c = parse "y:=2; z:=y*-1"
-    //let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
+    let c = parse "y:=2; z:=y*-1"
+    let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
     //let firstSigns = getStartSigns (Map.empty, Map.empty)
+
     let program = edgesC Start End c Map.empty    
     let signMemory = Map.ofList [(Start, (set [firstSigns]))]
     printfn "%A" (signAnalysis program Start signMemory)                              
