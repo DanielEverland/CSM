@@ -17,7 +17,7 @@ open Task1Lexer
 // ======================
 // Toggles whether a deterministic program graph is created
 let determinism = false
-let debug = false
+let debug = true
 
 type Node = | Start
             | End
@@ -138,12 +138,12 @@ and ceval e ((var, arr) : RuntimeData) : RuntimeData =
                                (var, arr.Add (x, arr1))
     | Skip                  -> (var, arr)
 
-let getCartesian (a:Set<Sign>) (b:Set<Sign>) : Set<Sign * Sign> = 
+let getCartesian a b = 
     Set.fold (fun acc aVal -> (Set.fold (fun accIn bVal -> (Set.add (aVal, bVal) accIn) ) acc b) ) Set.empty a
 
-let getSignSet (a:Set<Sign>) (b:Set<Sign>) lookup : Set<Sign> =
+let getSignSet a b lookup =
     let cartesianProduct = getCartesian a b
-    Set.fold (fun acc (x, y) -> Set.union (Map.find x (Map.find y lookup)) acc) Set.empty cartesianProduct
+    Set.fold (fun acc (x, y) -> Set.union (Map.find y (Map.find x lookup)) acc) Set.empty cartesianProduct
 
 let getVarSignSet (name:string) (col:NodeSignsCollection) : Set<Sign> =
     Set.fold (fun acc (vars, arrs) ->
@@ -187,6 +187,44 @@ let powSignLookup =  Map.ofList [
     (Zero,      Map.ofList [    (Minus, set []);                (Zero, set [Plus]);     (Plus, set [Zero]) ])
     (Plus,      Map.ofList [    (Minus, set [Plus]);            (Zero, set [Plus]);     (Plus, set [Plus]) ]) ]
 
+let equalSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [True; False]); (Zero, set [False]);    (Plus, set [False]) ])
+    (Zero,      Map.ofList [    (Minus, set [False]);       (Zero, set [True]);     (Plus, set [False]) ])
+    (Plus,      Map.ofList [    (Minus, set [False]);       (Zero, set [False]);    (Plus, set [True; False]) ]) ]
+
+let notEqualSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [True; False]); (Zero, set [True]);     (Plus, set [True]) ])
+    (Zero,      Map.ofList [    (Minus, set [True]);        (Zero, set [False]);    (Plus, set [True]) ])
+    (Plus,      Map.ofList [    (Minus, set [True]);        (Zero, set [True]);     (Plus, set [True; False]) ]) ]
+
+let greaterSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [True; False]); (Zero, set [False]);    (Plus, set [False]) ])
+    (Zero,      Map.ofList [    (Minus, set [True]);        (Zero, set [False]);    (Plus, set [False]) ])
+    (Plus,      Map.ofList [    (Minus, set [True]);        (Zero, set [True]);     (Plus, set [True; False]) ]) ]
+
+let greaterEqualSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [True; False]); (Zero, set [False]);    (Plus, set [False]) ])
+    (Zero,      Map.ofList [    (Minus, set [True]);        (Zero, set [True]);     (Plus, set [False]) ])
+    (Plus,      Map.ofList [    (Minus, set [True]);        (Zero, set [True]);     (Plus, set [True; False]) ]) ]
+
+let lessSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [True; False]); (Zero, set [True]);     (Plus, set [True]) ])
+    (Zero,      Map.ofList [    (Minus, set [False]);       (Zero, set [False]);    (Plus, set [True]) ])
+    (Plus,      Map.ofList [    (Minus, set [False]);       (Zero, set [False]);    (Plus, set [True; False]) ]) ]
+
+let lessEqualSignLookup =  Map.ofList [ 
+    (Minus,     Map.ofList [    (Minus, set [True; False]); (Zero, set [True]);     (Plus, set [True]) ])
+    (Zero,      Map.ofList [    (Minus, set [False]);       (Zero, set [True]);     (Plus, set [True]) ])
+    (Plus,      Map.ofList [    (Minus, set [False]);       (Zero, set [False]);    (Plus, set [True; False]) ]) ]
+
+let andSignLookup =  Map.ofList [
+    (True,  Map.ofList [    (True, set [True]);     (False, set [False]) ])
+    (False, Map.ofList [    (True, set [False]);    (False, set [False]) ]) ]
+
+let orSignLookup =  Map.ofList [
+    (True,  Map.ofList [    (True, set [True]);     (False, set [True]) ])
+    (False, Map.ofList [    (True, set [True]);     (False, set [False]) ]) ]
+
 let rec aevalSign expr (signs : NodeSignsCollection) : Set<Sign> = 
     match expr with
     | Num x             -> if x > 0 then set [Plus] else if x < 0 then set [Minus] else set [Zero]
@@ -200,6 +238,33 @@ let rec aevalSign expr (signs : NodeSignsCollection) : Set<Sign> =
     | UPlusExpr(x)      -> aevalSign x signs
     | UMinusExpr(x)     -> flipSigns (aevalSign x signs)
     | ParAExpr(x)       -> aevalSign x signs
+and bevalsign e (signs : NodeSignsCollection) : Set<bexpr> =
+  match e with
+    | True                  -> set [True]
+    | False                 -> set [False]
+    | And(x, y)             -> let lhs = bevalsign x signs
+                               let rhs = bevalsign y signs
+                               getSignSet lhs rhs andSignLookup
+    | Or(x, y)              -> let lhs = bevalsign x signs
+                               let rhs = bevalsign y signs
+                               getSignSet lhs rhs orSignLookup
+    | SAnd(x, y)            -> let lhs = bevalsign x signs
+                               let rhs = bevalsign y signs
+                               getSignSet lhs rhs andSignLookup
+    | SOr(x, y)             -> let lhs = bevalsign x signs
+                               let rhs = bevalsign y signs
+                               getSignSet lhs rhs orSignLookup
+    | Neg(x)                -> Set.fold (fun acc v -> Set.add (Neg(v)) acc) Set.empty (bevalsign x signs)
+    | Equal(x, y)           -> getSignSet (aevalSign x signs) (aevalSign y signs) equalSignLookup
+    | NEqual(x, y)          -> getSignSet (aevalSign x signs) (aevalSign y signs) notEqualSignLookup
+    | Greater(x, y)         -> let lhs = (aevalSign x signs)
+                               let rhs = (aevalSign y signs)
+                               (printfn "%A > %A" lhs rhs)
+                               getSignSet (aevalSign x signs) (aevalSign y signs) greaterSignLookup
+    | GreaterEqual(x, y)    -> getSignSet (aevalSign x signs) (aevalSign y signs) greaterEqualSignLookup
+    | Less(x, y)            -> getSignSet (aevalSign x signs) (aevalSign y signs) lessSignLookup
+    | LessEqual(x, y)       -> getSignSet (aevalSign x signs) (aevalSign y signs) lessEqualSignLookup
+    | ParBExpr(x)           -> bevalsign x signs
 
 let rec replaceInPredicateB varName expr p : bexpr =
     match p with
@@ -272,7 +337,8 @@ and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C T
-                               Map.add qFrom (((fun a -> a), (fun expr -> expr), (fun runtimeData -> runtimeData), b.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
+                               Map.add qFrom (((fun a -> (printfn "%A" (bevalsign b a))
+                                                         if Set.contains True (bevalsign b a) then a else Set.empty), (fun expr -> expr), (fun runtimeData -> runtimeData), b.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
     | GCommands(gc1, gc2)   -> match determinism with
                                 | false ->  let E1 = edgesGC qFrom qTo gc1 b T
                                             let E2 = edgesGC qFrom qTo gc2 b T
@@ -537,11 +603,14 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 //    printfn "%s" (buildContract spf predicates program)
 
 let doSignAnalysis =
+    let c = parse "do x>0 -> x:=x-1 od"
+    let firstSigns = (Map.ofList [("x", Plus)], Map.empty)
+
     //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
     //let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
 
-    let c = parse "y:=2; z:=y*-1"
-    let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
+    //let c = parse "y:=2; z:=y*-1"
+    //let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
     //let firstSigns = getStartSigns (Map.empty, Map.empty)
     let program = edgesC Start End c Map.empty    
     let signMemory = Map.ofList [(Start, (set [firstSigns]))]
