@@ -9,17 +9,9 @@ PAUSE
 ```
 
 # Running
-The initial signs and programs are manually entered into the source code prior to running the program. The source code comes bundled with three programs and predicates, but adding more can easily be done by following their formatting.
+Programs, security lattices and security classifications are defined in the source code. Two programs each with a secure and unsecure classification are provided as examples.
 
-Here's an example from a simple program:
-```
-map
-  [(Start, set [(map [("y", Plus); ("z", Plus)], map [])]);
-   (End, set [(map [("y", Plus); ("z", Minus)], map [])]);
-   (Inter 1, set [(map [("y", Plus); ("z", Plus)], map [])])]
-```
-
-We did not fully implement guarded commands, and as such programs that use guarded commands will not output the same result as fm4fun.
+When the program is run it will simply output a boolean value defining whether the program is secure or not. True means the program is secure, while False means the program is not secure. We have compared with results on fm4fun to verify that the program works.
 
 # Modified Files
 
