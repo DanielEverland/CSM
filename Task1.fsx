@@ -56,7 +56,7 @@ type CompiledAction = RuntimeData -> RuntimeData
 type PredicateAction = bexpr -> bexpr
 type EdgeViability = RuntimeData -> bexpr
 type SignAction = NodeSignsCollection -> NodeSignsCollection
-type SecurityAction = ImplicitDependencies * SecurityLevel -> bool
+type SecurityAction = ImplicitDependencies * SecurityLevel * SecurityClassification -> bool
 
 // An edge consists of an action and target node
 type Edge = SecurityAction * SignAction * PredicateAction * CompiledAction * string * EdgeViability * Node
@@ -173,10 +173,10 @@ and ceval e ((var, arr) : RuntimeData) : RuntimeData =
                                (var, arr.Add (x, arr1))
     | Skip                  -> (var, arr)
 
-let getSecurityLevel var levels = Map.find var levels
+let getSecurityLevel var levels classification = Map.find (Map.find var classification) levels
 
-let isSecureFlow (dependencies:Set<string>) targetVar levels =
-    List.forall (fun s -> (getSecurityLevel s levels) <= (getSecurityLevel targetVar levels)) (Set.toList dependencies)
+let isSecureFlow (dependencies:Set<string>) targetVar levels classification =
+    List.forall (fun s -> (getSecurityLevel s levels classification) <= (getSecurityLevel targetVar levels classification)) (Set.toList dependencies)
 
 let getCartesian a b = 
     Set.fold (fun acc aVal -> (Set.fold (fun accIn bVal -> (Set.add (aVal, bVal) accIn) ) acc b) ) Set.empty a
@@ -350,21 +350,21 @@ and gcpeval (p:bexpr) (gc:gcommand) : bexpr =
 
 let printEdge qFrom label qTo = qFrom.ToString() + " -> " + qTo.ToString() + " [label = \"" + label + "\"];"
 
-let rec sec (C : command) (X : ImplicitDependencies) (L : SecurityLevel) : bool =
+let rec sec (C : command) (X : ImplicitDependencies) (L : SecurityLevel) (CL : SecurityClassification) : bool =
     match C with
-    | AssignExpr(x, y)      -> isSecureFlow (fvA y X) x L
-    | AssignArray(x, y, z)  -> isSecureFlow (Set.union X (Set.union (fvA y Set.empty) (fvA z Set.empty))) x L
+    | AssignExpr(x, y)      -> isSecureFlow (fvA y X) x L CL
+    | AssignArray(x, y, z)  -> isSecureFlow (Set.union X (Set.union (fvA y Set.empty) (fvA z Set.empty))) x L CL
     | Skip                  -> true
-    | Commands(C1, C2)      -> (sec C1 X L) && (sec C2 X L)
-    | IfStatement(GC)       -> let (w, _) = sec2 False GC X L
+    | Commands(C1, C2)      -> (sec C1 X L CL) && (sec C2 X L CL)
+    | IfStatement(GC)       -> let (w, _) = sec2 False GC X L CL
                                w
-    | DoStatement(GC)       -> let (w, _) = sec2 False GC X L
+    | DoStatement(GC)       -> let (w, _) = sec2 False GC X L CL
                                w
-and sec2 (d : bexpr) (GC : gcommand) (X : ImplicitDependencies) (L : SecurityLevel) : (bool * bexpr) =
+and sec2 (d : bexpr) (GC : gcommand) (X : ImplicitDependencies) (L : SecurityLevel) (CL : SecurityClassification) : (bool * bexpr) =
     match GC with
-    | BooleanGuard(b, C)    -> ((sec C (fvB b X) L), Or(d, b))
-    | GCommands(gc1, gc2)   -> let (w1, d1) = sec2 d gc1 X L
-                               let (w2, d2) = sec2 d1 gc2 X L
+    | BooleanGuard(b, C)    -> ((sec C (fvB b X) L CL), Or(d, b))
+    | GCommands(gc1, gc2)   -> let (w1, d1) = sec2 d gc1 X L CL
+                               let (w2, d2) = sec2 d1 gc2 X L CL
                                (w1 && w2, d2)
 
 let mutable n = 0
@@ -379,8 +379,8 @@ let rec doneGC = function
 
 let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program =
     match C with
-    | AssignExpr(x,y)       -> Map.add qFrom (((fun (X, L) -> sec C X L), (fun M -> setVarSignSet x (aevalSign y M) M), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
-    | AssignArray(x,y,z)    -> Map.add qFrom (((fun (X, L) -> sec C X L), (fun a -> a), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignExpr(x,y)       -> Map.add qFrom (((fun (X, L, CL) -> sec C X L CL), (fun M -> setVarSignSet x (aevalSign y M) M), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignArray(x,y,z)    -> Map.add qFrom (((fun (X, L, CL) -> sec C X L CL), (fun a -> a), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
     | Skip                  -> T
     | Commands(C1,C2)       -> let q = getFresh qFrom
                                let E1 = edgesC qFrom q C1 T
@@ -388,16 +388,16 @@ let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program
                                merge E1 E2
     | IfStatement(GC)       -> edgesGC qFrom qTo GC False T
     | DoStatement(GC)       -> let E1 = edgesGC qFrom qFrom GC False T
-                               let E2 = Map.add qFrom (((fun (X, L) -> let (w, _) = sec2 False GC X L
-                                                                       w), (fun a -> a), (fun expr -> expr), (fun runtimeData -> ceval (DoStatement(GC)) runtimeData), (doneGC GC).ToString(), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
+                               let E2 = Map.add qFrom (((fun (X, L, CL) -> let (w, _) = sec2 False GC X L CL
+                                                                           w), (fun a -> a), (fun expr -> expr), (fun runtimeData -> ceval (DoStatement(GC)) runtimeData), (doneGC GC).ToString(), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
                                merge E1 E2
 and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program) : Program =
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C T
-                               Map.add qFrom (((fun (X, L) -> let (w, _) = sec2 False GC X L
-                                                              w), (fun a -> (printfn "%A" (bevalsign b a))
-                                                                            if Set.contains True (bevalsign b a) then a else Set.empty), (fun expr -> expr), (fun runtimeData -> runtimeData), b.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
+                               Map.add qFrom (((fun (X, L, CL) -> let (w, _) = sec2 False GC X L CL
+                                                                  w), (fun a -> (printfn "%A" (bevalsign b a))
+                                                                                if Set.contains True (bevalsign b a) then a else Set.empty), (fun expr -> expr), (fun runtimeData -> runtimeData), b.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
     | GCommands(gc1, gc2)   -> match determinism with
                                 | false ->  let E1 = edgesGC qFrom qTo gc1 b T
                                             let E2 = edgesGC qFrom qTo gc2 b T
@@ -568,6 +568,9 @@ let rec interpret ((current, memory, program):ProgramState) : ProgramState =
             | Some (_, _, _, action, _, _, toNode) -> (interpret (toNode, (action memory), program))
             | None -> (current, memory, program)
 
+let rec analyseSecurity (program : Program) (L : SecurityLevel) (CL : SecurityClassification) : bool =
+    Map.forall (fun _ list -> (List.forall (fun (action, _, _, _, _, _, _) -> (action (Set.empty, L, CL))) list)) program
+
 let parseSign input = 
     match input with
     | "+" -> Plus
@@ -680,11 +683,10 @@ let doSecurityAnalysis =
     let securityLattice = Map.ofList [("public", 1); ("private", 2)]
 
     let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"    
-    let securityClassification = Map.ofList [("x", "public"); ("y", "private")];
-
+    let securityClassification = Map.ofList [("x", "private"); ("y", "public")];
 
     let program = edgesC Start End c Map.empty
-
+    printfn "%b" (analyseSecurity program securityLattice securityClassification)
 
 
 // Start interacting with the user
