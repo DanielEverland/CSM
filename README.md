@@ -9,16 +9,17 @@ PAUSE
 ```
 
 # Running
-The predicates and programs are manually entered into the source code prior to running the program. The source code comes bundled with two programs and predicates, but adding more can easily be done by following their formatting.
+The initial signs and programs are manually entered into the source code prior to running the program. The source code comes bundled with three programs and predicates, but adding more can easily be done by following their formatting.
 
-Once the program is executed logical formulas will be output for each edge in the SPF.
+Here's an example from a simple program:
+```
+map
+  [(Start, set [(map [("y", Plus); ("z", Plus)], map [])]);
+   (End, set [(map [("y", Plus); ("z", Minus)], map [])]);
+   (Inter 1, set [(map [("y", Plus); ("z", Plus)], map [])])]
+```
 
-Here's an output based on the loop example from the lectures:
-```
-M=m => M=(0)*n+m
-M=q*n+m => M=(q+1)*n+(m-n)
-M=q*n+m => M=q*n+m
-```
+We did not fully implement guarded commands, and as such programs that use guarded commands will not output the same result as fm4fun.
 
 # Modified Files
 
