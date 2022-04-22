@@ -47,14 +47,19 @@ type ArrayData = Map<string, int[]>
 // The data we can modify during runtime
 type RuntimeData = (VariableData * ArrayData)
 
+type ImplicitDependencies = Set<string>
+type SecurityLevel = Map<string, int>
+type SecurityClassification = Map<string, string>
+
 // Lambdas that take the current runtime data, modify it and return new runtime data
 type CompiledAction = RuntimeData -> RuntimeData
 type PredicateAction = bexpr -> bexpr
 type EdgeViability = RuntimeData -> bexpr
 type SignAction = NodeSignsCollection -> NodeSignsCollection
+type SecurityAction = ImplicitDependencies * SecurityLevel -> bool
 
 // An edge consists of an action and target node
-type Edge = SignAction * PredicateAction * CompiledAction * string * EdgeViability * Node
+type Edge = SecurityAction * SignAction * PredicateAction * CompiledAction * string * EdgeViability * Node
 
 // A lookup table that determines the edges of all nodes
 type Program = Map<Node, Edge list>
@@ -78,6 +83,36 @@ let merge mapA mapB = Map.fold (fun acc key value -> let edges = getEdges key ac
                                                      Map.add key (value@edges) acc) mapA mapB
 
 let ToString (sd:SubDomain) = Set.fold (fun acc v -> if acc = "" then v.ToString() else acc + ", " + v.ToString()) "" sd
+
+let rec fvA e X : Set<string> = 
+    match e with
+    | Num(x)                -> X
+    | Var(x)                -> Set.add x X
+    | Array(x, y)           -> Set.union (Set.add x X) (fvA y Set.empty)
+    | TimesExpr(x,y)        -> Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | DivExpr(x,y)          -> Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | PlusExpr(x,y)         -> Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | MinusExpr(x,y)        -> Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | PowExpr(x,y)          -> Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | UPlusExpr(x)          -> Set.union (fvA x Set.empty) X
+    | UMinusExpr(x)         -> Set.union (fvA x Set.empty) X
+    | ParAExpr(x)           -> Set.union (fvA x Set.empty) X
+and fvB e X : Set<string> =
+    match e with
+    | True                  ->  X
+    | False                 ->  X
+    | And(x, y)             ->  Set.union (Set.union (fvB x Set.empty) (fvB y Set.empty)) X
+    | Or(x, y)              ->  Set.union (Set.union (fvB x Set.empty) (fvB y Set.empty)) X
+    | SAnd(x, y)            ->  Set.union (Set.union (fvB x Set.empty) (fvB y Set.empty)) X
+    | SOr(x, y)             ->  Set.union (Set.union (fvB x Set.empty) (fvB y Set.empty)) X
+    | Neg(x)                ->  fvB x X
+    | Equal(x, y)           ->  Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | NEqual(x, y)          ->  Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | Greater(x, y)         ->  Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | GreaterEqual(x, y)    ->  Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | Less(x, y)            ->  Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | LessEqual(x, y)       ->  Set.union (Set.union (fvA x Set.empty) (fvA y Set.empty)) X
+    | ParBExpr(x)           ->  fvB x X
 
 // We define the evaluation function recursively, by induction on the structure
 // of arithmetic expressions (AST of type expr)
@@ -137,6 +172,11 @@ and ceval e ((var, arr) : RuntimeData) : RuntimeData =
                                arr1.[int(aeval y (var, arr))] <- aeval z (var, arr)
                                (var, arr.Add (x, arr1))
     | Skip                  -> (var, arr)
+
+let getSecurityLevel var levels = Map.find var levels
+
+let isSecureFlow (dependencies:Set<string>) targetVar levels =
+    List.forall (fun s -> (getSecurityLevel s levels) <= (getSecurityLevel targetVar levels)) (Set.toList dependencies)
 
 let getCartesian a b = 
     Set.fold (fun acc aVal -> (Set.fold (fun accIn bVal -> (Set.add (aVal, bVal) accIn) ) acc b) ) Set.empty a
@@ -310,6 +350,23 @@ and gcpeval (p:bexpr) (gc:gcommand) : bexpr =
 
 let printEdge qFrom label qTo = qFrom.ToString() + " -> " + qTo.ToString() + " [label = \"" + label + "\"];"
 
+let rec sec (C : command) (X : ImplicitDependencies) (L : SecurityLevel) : bool =
+    match C with
+    | AssignExpr(x, y)      -> isSecureFlow (fvA y X) x L
+    | AssignArray(x, y, z)  -> isSecureFlow (Set.union X (Set.union (fvA y Set.empty) (fvA z Set.empty))) x L
+    | Skip                  -> true
+    | Commands(C1, C2)      -> (sec C1 X L) && (sec C2 X L)
+    | IfStatement(GC)       -> let (w, _) = sec2 False GC X L
+                               w
+    | DoStatement(GC)       -> let (w, _) = sec2 False GC X L
+                               w
+and sec2 (d : bexpr) (GC : gcommand) (X : ImplicitDependencies) (L : SecurityLevel) : (bool * bexpr) =
+    match GC with
+    | BooleanGuard(b, C)    -> ((sec C (fvB b X) L), Or(d, b))
+    | GCommands(gc1, gc2)   -> let (w1, d1) = sec2 d gc1 X L
+                               let (w2, d2) = sec2 d1 gc2 X L
+                               (w1 && w2, d2)
+
 let mutable n = 0
 let getFresh q = match q with
                  | Start|Inter _ -> n <- n + 1
@@ -322,8 +379,8 @@ let rec doneGC = function
 
 let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program =
     match C with
-    | AssignExpr(x,y)       -> Map.add qFrom (((fun M -> setVarSignSet x (aevalSign y M) M), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
-    | AssignArray(x,y,z)    -> Map.add qFrom (((fun a -> a), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignExpr(x,y)       -> Map.add qFrom (((fun (X, L) -> sec C X L), (fun M -> setVarSignSet x (aevalSign y M) M), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignExpr(x, y)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
+    | AssignArray(x,y,z)    -> Map.add qFrom (((fun (X, L) -> sec C X L), (fun a -> a), (fun expr -> peval expr C), (fun runtimeData -> ceval (AssignArray(x, y, z)) runtimeData), C.ToString(), (fun runtimeData -> True), qTo)::(getEdges qFrom T)) T
     | Skip                  -> T
     | Commands(C1,C2)       -> let q = getFresh qFrom
                                let E1 = edgesC qFrom q C1 T
@@ -331,14 +388,16 @@ let rec edgesC (qFrom : Node) (qTo : Node) (C : command) (T : Program) : Program
                                merge E1 E2
     | IfStatement(GC)       -> edgesGC qFrom qTo GC False T
     | DoStatement(GC)       -> let E1 = edgesGC qFrom qFrom GC False T
-                               let E2 = Map.add qFrom (((fun a -> a), (fun expr -> expr), (fun runtimeData -> ceval (DoStatement(GC)) runtimeData), (doneGC GC).ToString(), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
+                               let E2 = Map.add qFrom (((fun (X, L) -> let (w, _) = sec2 False GC X L
+                                                                       w), (fun a -> a), (fun expr -> expr), (fun runtimeData -> ceval (DoStatement(GC)) runtimeData), (doneGC GC).ToString(), (fun runtimeData -> doneGC GC), qTo)::(getEdges qFrom T)) T
                                merge E1 E2
 and edgesGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (T : Program) : Program =
     match GC with
     | BooleanGuard(b, C)    -> let q = getFresh qFrom
                                let E = edgesC q qTo C T
-                               Map.add qFrom (((fun a -> (printfn "%A" (bevalsign b a))
-                                                         if Set.contains True (bevalsign b a) then a else Set.empty), (fun expr -> expr), (fun runtimeData -> runtimeData), b.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
+                               Map.add qFrom (((fun (X, L) -> let (w, _) = sec2 False GC X L
+                                                              w), (fun a -> (printfn "%A" (bevalsign b a))
+                                                                            if Set.contains True (bevalsign b a) then a else Set.empty), (fun expr -> expr), (fun runtimeData -> runtimeData), b.ToString(), (fun runtimeData -> b), q)::(getEdges qFrom T)) E
     | GCommands(gc1, gc2)   -> match determinism with
                                 | false ->  let E1 = edgesGC qFrom qTo gc1 b T
                                             let E2 = edgesGC qFrom qTo gc2 b T
@@ -376,18 +435,18 @@ and domGC (qFrom : Node) (qTo : Node) (GC : gcommand) (b : bexpr) (D : Domain) :
                                let E2 = domGC qFrom qTo gc2 b D
                                Set.union E1 E2
 
-let getActionStr (qFrom:Node) (qTo:Node) (P:Program) = let (_, _, _, str, _, _) = List.find (fun (_, _, _, _, _, toNode) -> qTo = toNode) (Map.find qFrom P)
+let getActionStr (qFrom:Node) (qTo:Node) (P:Program) = let (_, _, _, _, str, _, _) = List.find (fun (_, _, _, _, _, _, toNode) -> qTo = toNode) (Map.find qFrom P)
                                                        str
 
 //let addIfDom (qFrom:Node) (qTo : Node) (dom:Domain) (T:SPF) : SPF = if dom.Contains qFrom then Map.add qFrom ((qTo, [])::(getEdges qFrom T)) T else T
 
 let getAllEdges (P:Program) : Edge list = Map.fold (fun acc key value -> acc@value) [] P
-let filterByEnd (N:Node) (E:(Edge list)) : Edge list = List.filter (fun (_, _, _, _, _, endNode) -> endNode = N) E
+let filterByEnd (N:Node) (E:(Edge list)) : Edge list = List.filter (fun (_, _, _, _, _, _, endNode) -> endNode = N) E
 let getValidEdges (N:Node) (P:Program) : Program = Map.fold (fun acc key edges ->   let filteredEdges = filterByEnd N edges
                                                                                     if List.isEmpty filteredEdges
                                                                                     then acc
                                                                                     else Map.add key (filterByEnd N edges) acc) Map.empty P
-let iterateOverEdges (iter:IterAction) (P:Program) (S:SPF) = Map.fold (fun mapAcc qFrom edges -> (List.fold (fun listAcc (_, _, _, _, _, qTo) -> (iter (qFrom, qTo, listAcc)) )) mapAcc edges) S P
+let iterateOverEdges (iter:IterAction) (P:Program) (S:SPF) = Map.fold (fun mapAcc qFrom edges -> (List.fold (fun listAcc (_, _, _, _, _, _, qTo) -> (iter (qFrom, qTo, listAcc)) )) mapAcc edges) S P
 let unionS (a:SPF) (b:SPF) : SPF = Map.fold (fun acc key (value:SPFEdge list) -> let edges = List.filter (fun (v:SPFEdge) -> (List.contains v value) = false) (getEdges key acc)
                                                                                  Map.add key (value@edges) acc) a b
 
@@ -410,8 +469,8 @@ let rec build (qFrom:Node) (qTo : Node) (D:Domain) (P:Program) (S:SPF) (SD:SubDo
 
 let getNextEdge (q:Node) (P:Program) (D:SubDomain) : Option<Node> =
     let allEdges = Map.find q P
-    match (List.tryFind (fun (_, _, _, _, _, e) -> Set.contains e D) allEdges) with
-    | Some (_, _, _, _, _, e) -> Some e
+    match (List.tryFind (fun (_, _, _, _, _, _, e) -> Set.contains e D) allEdges) with
+    | Some (_, _, _, _, _, _, e) -> Some e
     | None -> None    
 let buildSPFEdgePath (qS:Node) (qE:Node, D:SubDomain) (P:Program) : Node list =
     let rec dfs (curr:Node) (l:Node list) : Node list =
@@ -438,7 +497,7 @@ let buildProofObligations (S:SPF) (P:Predicates) (pro:Program) : string =
 let transformPredicate (qFrom:Node) (edge:SPFEdge) (P:Program) (bStart:bexpr) : bexpr =
     let path = List.rev (buildSPFEdgePath qFrom edge P)
     let rec doTransform b = function
-    | qStart::qEnd::qs -> let (_, act, _, str, _, _) = List.find (fun (_, _, _, _, _, toNode) -> qStart = toNode) (Map.find qEnd P)
+    | qStart::qEnd::qs -> let (_, _, act, _, str, _, _) = List.find (fun (_, _, _, _, _, _, toNode) -> qStart = toNode) (Map.find qEnd P)
                           doTransform (act b) (qEnd::qs)
     | _ -> b
     doTransform bStart path
@@ -466,12 +525,12 @@ let signAnalysis (P:Program) (qInit:Node) (A:SignMemory) : SignMemory =
         | _ -> A
     and doForAllEdges q W A edges : (SignMemory * Node list) =
         match edges with
-        | (action, _, _, _, _, toNode)::es -> if debug then printfn "\n%s -> %A\n" (q.ToString()) A
-                                              let newSigns = action (Map.find q A)
-                                              let endSigns = Map.find toNode A
-                                              if Set.isSubset newSigns endSigns
-                                              then doForAllEdges q W A es
-                                              else doForAllEdges q (toNode::W) (Map.add toNode (Set.union newSigns endSigns) A) es
+        | (_, action, _, _, _, _, toNode)::es -> if debug then printfn "\n%s -> %A\n" (q.ToString()) A
+                                                 let newSigns = action (Map.find q A)
+                                                 let endSigns = Map.find toNode A
+                                                 if Set.isSubset newSigns endSigns
+                                                 then doForAllEdges q W A es
+                                                 else doForAllEdges q (toNode::W) (Map.add toNode (Set.union newSigns endSigns) A) es
         | _ -> (A, W)
     iterWorklist initializedMemory Winit
 
@@ -488,7 +547,7 @@ let rec printEdges = function
     | (qFrom, label, qTo)::xs   -> printEdge qFrom label qTo + "\n" + printEdges xs
     | _                         -> ""
 
-let getProgramGraphString (program:Program) = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, _, _, _, _, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
+let getProgramGraphString (program:Program) = Map.fold (fun state n edgeList -> state + string n + " -> " + (List.fold (fun state (_, _, _, _, _, _, toNode) -> (if state = "" then state else state + ", ") + string toNode) "" edgeList) + "\n") "" program
 
 let getMemoryString ((varData, arrData):RuntimeData) =
     let varStr varData = Map.fold (fun acc name value -> acc + name + ": " + value.ToString() + "\n") "" varData
@@ -497,7 +556,7 @@ let getMemoryString ((varData, arrData):RuntimeData) =
 
 let rec getViableEdge (edges : Edge list) (memory : RuntimeData) : Option<Edge> =
     match edges with
-    | (sAction, pAction, action, actionName, viability, toNode)::xs -> if beval (viability memory) memory then (Some (sAction, pAction, action, actionName, viability, toNode)) else (getViableEdge xs memory)
+    | (secAction, sAction, pAction, action, actionName, viability, toNode)::xs -> if beval (viability memory) memory then (Some (secAction, sAction, pAction, action, actionName, viability, toNode)) else (getViableEdge xs memory)
     | [] -> None
 
 let rec interpret ((current, memory, program):ProgramState) : ProgramState =
@@ -506,7 +565,7 @@ let rec interpret ((current, memory, program):ProgramState) : ProgramState =
     | _ ->  if debug then printf "%s\n" (current.ToString())
             let edges = Map.find current program
             match (getViableEdge edges memory) with
-            | Some (_, _, action, _, _, toNode) -> (interpret (toNode, (action memory), program))
+            | Some (_, _, _, action, _, _, toNode) -> (interpret (toNode, (action memory), program))
             | None -> (current, memory, program)
 
 let parseSign input = 
@@ -602,20 +661,31 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 //    let spf = Set.fold (fun acc q -> unionS acc (build q q domain program acc Set.empty) ) Map.empty domain
 //    printfn "%s" (buildContract spf predicates program)
 
-let doSignAnalysis =
-    //let c = parse "do x>0 -> x:=x-1 od"
-    //let firstSigns = (Map.ofList [("x", Plus)], Map.empty)
+//let doSignAnalysis =
+//    //let c = parse "do x>0 -> x:=x-1 od"
+//    //let firstSigns = (Map.ofList [("x", Plus)], Map.empty)
 
-    //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
-    //let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
+//    //let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
+//    //let firstSigns = (Map.ofList [("x", Plus); ("y", Plus)], Map.empty)
 
-    let c = parse "y:=2; z:=y*-1"
-    let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
-    //let firstSigns = getStartSigns (Map.empty, Map.empty)
+//    let c = parse "y:=2; z:=y*-1"
+//    let firstSigns = (Map.ofList [("y", Plus); ("z", Plus)], Map.empty)
+//    //let firstSigns = getStartSigns (Map.empty, Map.empty)
 
-    let program = edgesC Start End c Map.empty    
-    let signMemory = Map.ofList [(Start, (set [firstSigns]))]
-    printfn "%A" (signAnalysis program Start signMemory)                              
+//    let program = edgesC Start End c Map.empty    
+//    let signMemory = Map.ofList [(Start, (set [firstSigns]))]
+//    printfn "%A" (signAnalysis program Start signMemory)
+
+let doSecurityAnalysis =
+    let securityLattice = Map.ofList [("public", 1); ("private", 2)]
+
+    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"    
+    let securityClassification = Map.ofList [("x", "public"); ("y", "private")];
+
+
+    let program = edgesC Start End c Map.empty
+
+
 
 // Start interacting with the user
-doSignAnalysis
+doSecurityAnalysis
