@@ -682,8 +682,18 @@ let getDomString (dom:Domain) = Set.fold (fun acc value -> acc + value.ToString(
 let doSecurityAnalysis =
     let securityLattice = Map.ofList [("public", 1); ("private", 2)]
 
-    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"    
+    // Not Secure
+    let c = parse "y:=1; do x>0 -> y:=x*y; x:=x-1 od"
+    // Not Secure
     let securityClassification = Map.ofList [("x", "private"); ("y", "public")];
+    // Secure
+    //let securityClassification = Map.ofList [("x", "public"); ("y", "private")];
+        
+    //let c = parse "if x<0 -> y:=(-1*z)*z [] x=0 -> y:=0 [] x>0 -> y:=z*z fi"
+    // Not Secure
+    //let securityClassification = Map.ofList [("x", "private"); ("y", "public"); ("z", "public")];
+    // Secure
+    //let securityClassification = Map.ofList [("x", "public"); ("y", "private"); ("z", "private")];
 
     let program = edgesC Start End c Map.empty
     printfn "%b" (analyseSecurity program securityLattice securityClassification)
